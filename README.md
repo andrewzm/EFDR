@@ -7,6 +7,11 @@ The package `EFDR` contains the required functions to carry out EFDR in a practi
 
 This package is still under development and is not available on CRAN. To install you will need to have `devtools` installed and loaded. Then type in  `install_github('andrewzm/EFDR')`. Please do not hesitate to contact me if you have any queries.
 
+Open issues
+---------------
+
+- Neighbourhood detection is currently sped up using a parallel backend. This, however, will remain slow on a standard desktop. Suggest implementing in C.
+
 Package details
 ---------------
 
