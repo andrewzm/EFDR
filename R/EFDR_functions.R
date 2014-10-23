@@ -41,7 +41,7 @@ test.efdr <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,iteration = 20
   
   nei <- nei.efdr(Z,wf = wf,J=J,b=b, parallel = parallel) 
   
-  cat("...Estimating the EFDR optimal number of tests ...",sep="\n")
+  cat("... Estimating the EFDR optimal number of tests ...",sep="\n")
   if(length(n.hyp)>1) {
     nhat <- .gdf(Z,n.hyp=n.hyp,iteration=iteration,nei=nei,parallel = parallel)$nhat
   } else {
