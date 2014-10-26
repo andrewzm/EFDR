@@ -421,7 +421,9 @@ regrid <- function(df,n1 = 128, n2 = n1, idp = 0.5, nmax = 7) {
   
   .check_args(Z = Z, wf = wf, J = J, n.hyp = n.hyp, b =b, nei = nei, parallel = parallel)
   dwt.z <- dwt.2d(x=Z,wf=wf,J=J)  
-  std.dwt.z <- .std.wav.coeff(dwt.z)
+  if (is.null(nei)) nei <- nei.efdr(dwt.z,b=b,parallel = parallel) 
+  
+  dwt.z <- .std.wav.coeff(dwt.z) # Standardise
   
   loss <- g <-  n.hyp*0
   nz <- length(unlist(dwt.z))
@@ -430,7 +432,6 @@ regrid <- function(df,n1 = 128, n2 = n1, idp = 0.5, nmax = 7) {
   sigma <- 1
   tau <- 0.5*sigma
   
-  if (is.null(nei)) nei <- nei.efdr(dwt.z,b=b,parallel = parallel) 
   
   
   find_loss <- function(i) {
