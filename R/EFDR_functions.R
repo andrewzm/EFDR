@@ -637,14 +637,13 @@ fdrpower <- function(reject.true,reject) {
   M <- 3
   J <- (length(dwt)-1)/M
   K1 <- K2 <- nrow(dwt[[1]])
-  
   dwt.t <- .jmk.sys(dwt)
   weight <- dwt.t * 0
   layers <- .flat.pack(dwt,b=b)
-  
   layers$z <- dwt.t[as.matrix(subset(layers,select=c("j","m","k1","k2")))]^2
   weight_mat <- matrix(layers$z[c(nei)],nrow = nrow(layers))
-  layers$weight <- apply(weight_mat,1,max)
+  #layers$weight <- apply(weight_mat,1,max)
+  layers$weight <- do.call(pmax, data.frame(weight_mat))
   weight[cbind(layers$j,layers$m,layers$k1,layers$k2)] <- layers$weight
   weight[J,M+1,,] <- 1e10
   
