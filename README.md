@@ -11,6 +11,7 @@ Open issues
 ---------------
 
 - Neighbourhood detection is currently sped up using a parallel backend. This, however, will remain slow on a standard desktop. Suggest implementing in C.
+- The package `waveslim` produces erroneous results when carrying out a DWT on an image which is not square. As a result, `EFDR` will not work on images which are not square.  Suggest altering the `dwt.2d` interface.
 
 Package details
 ---------------
