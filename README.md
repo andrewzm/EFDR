@@ -53,7 +53,8 @@ Imports:
     doMC,
     parallel,
     gstat,
-    tidyr
+    tidyr,
+    dplyr
 
 License: GPL (>= 2)
 
