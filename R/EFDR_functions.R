@@ -28,7 +28,7 @@
 #' @export
 #' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 #' @examples
-#' Z <- test_image(h = 0.5, r = 14, n = 64)$z
+#' Z <- test_image(h = 0.5, r = 14, n1 = 64)$z
 #' Z <- Z + rnorm(64^2)*0.2
 #' m1 <- test.bonferroni(Z, wf="la8",J=3, alpha = 0.05)
 #' m2 <- test.efdr(Z, wf="la8",J=3, alpha = 0.05,n.hyp=c(20,40,60,100,120,200,500,1000))
@@ -412,8 +412,31 @@ regrid <- function(df,n1 = 128, n2 = n1, idp = 0.5, nmax = 7) {
 }
 
 
-### return fdr power
-.fdrpower <- function(reject.true,reject) {
+#' @title Power function
+#' 
+#' @description Returns the power of the multiple hypothesis test, by finding
+#' the proportion of the correctly rejected null hypotheses.
+#' @param reject.true the indices of the true alternative hypotheses
+#' @param reject the indices of rejected null hypotheses
+#' @return Single value (proportion)
+#' @export
+#' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+#' @examples
+#' set.seed(1)
+#' wf = "la8"
+#' J = 3
+#' n = 64
+#' h = 0.5
+#' Z <- test_image(h = h, r = 14, n1 = n)$z
+#' sig <- wav_th(Z, wf=wf, J=J, th = h)
+#' 
+#' Z <- Z + rnorm(n^2)*0.5
+#' m1 <- test.bonferroni(Z, wf="la8",J=3, alpha = 0.05)
+#' m2 <- test.fdr(Z, wf="la8",J=3, alpha = 0.05)
+#' 
+#' cat(paste0("Bonferroni power: ",fdrpower(sig,m1$reject_coeff)))
+#' cat(paste0("FDR power: ",fdrpower(sig,m2$reject_coeff)))
+fdrpower <- function(reject.true,reject) {
   length(intersect(reject.true,reject)) / length(reject.true)
 }
 
