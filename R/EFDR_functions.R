@@ -205,7 +205,8 @@ test.los <- function(Z,wf="la8",J=3,alpha=0.05)
 #' at the centre.
 #' @param h the amplitude of the filled circle
 #' @param r the radius of the circle (in pixesl)
-#' @param n the size of the image (e.g. n=64 implies a 64 x 64 image)
+#' @param n1 image width in pixels
+#' @param n2 image height in pixels
 #' @return List with two elements
 #' \describe{
 #' \item{\code{z}}{the test image}
@@ -216,20 +217,24 @@ test.los <- function(Z,wf="la8",J=3,alpha=0.05)
 #' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 #' @examples
 #' Z <- test_image()$z
-test_image <- function(h=1,r=10,n = 64)   {
+test_image <- function(h=1,r=10,n1 = 64, n2=64)   {
   
   stopifnot(is.numeric(h))
   stopifnot(is.numeric(r))
-  stopifnot(is.numeric(n))
-  stopifnot(r > 0 & r < n)
-  stopifnot(n > 0)
-  stopifnot(.IsPowerOfTwo(n))
+  stopifnot(is.numeric(n1))
+  stopifnot(is.numeric(n2))
+  stopifnot(r > 0 & r < min(n1,n2))
+  stopifnot(n1 > 0)
+  stopifnot(n2 > 0)
+  stopifnot(.IsPowerOfTwo(n1))
+  stopifnot(.IsPowerOfTwo(n2))
   
-  signal=matrix(0,n,n)
-  cutoff <- (n/2) - 0.5
-  signal.grid <- expand.grid(-cutoff:cutoff,-cutoff:cutoff)
+  signal=matrix(0,n1,n2)
+  cutoff1 <- (n1/2) - 0.5
+  cutoff2 <- (n2/2) - 0.5
+  signal.grid <- expand.grid(-cutoff1:cutoff1,-cutoff2:cutoff2)
   
-  distances <- matrix(apply(signal.grid,1,function(x) sqrt(x[1]^2 + x[2]^2)),n)
+  distances <- matrix(apply(signal.grid,1,function(x) sqrt(x[1]^2 + x[2]^2)),n1,n2)
   signal[distances < r] <- h
   return(list(z = signal, grid = as.matrix(signal.grid)))
 }
