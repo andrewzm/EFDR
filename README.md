@@ -7,11 +7,17 @@ The package `EFDR` contains the required functions to carry out EFDR in a practi
 
 This package is still under development and is not available on CRAN. To install you will need to have `devtools` installed and loaded. Then type in  `install_github('andrewzm/EFDR')`. Please do not hesitate to contact me if you have any queries.
 
+Installation
+------------
+
+- To install this package, first load `devtools`, then type `install_github('EFDR','andrewzm', dependencies=T)`. Installation of most dependencies is straightforward. If on a Linux, for the package `gstat` you will also need to install `libgeos-dev` which is widely available in linux repos. In Ubuntu this is available using `apt-get install libgeos-dev`.
+
 Open issues
 ---------------
 
 - Neighbourhood detection is currently sped up using a parallel backend. This, however, will remain slow on a standard desktop. Suggest implementing in C.
 - The package `waveslim` produces erroneous results when carrying out a DWT on an image which is not square. As a result, `EFDR` will not work on images which are not square.  Suggest altering the `dwt.2d` interface.
+
 
 Package details
 ---------------
