@@ -49,7 +49,7 @@ Test for anomalies using either \code{bonferroni}, \code{FDR}, \code{EFDR} or \c
 wavelet domain.
 }
 \examples{
-Z <- generate_signal(h = 0.5, r = 14, n = 64)$z
+Z <- test_image(h = 0.5, r = 14, n1 = 64)$z
 Z <- Z + rnorm(64^2)*0.2
 m1 <- test.bonferroni(Z, wf="la8",J=3, alpha = 0.05)
 m2 <- test.efdr(Z, wf="la8",J=3, alpha = 0.05,n.hyp=c(20,40,60,100,120,200,500,1000))

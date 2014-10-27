@@ -28,7 +28,7 @@
 #' @export
 #' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 #' @examples
-#' Z <- generate_signal(h = 0.5, r = 14, n = 64)$z
+#' Z <- test_image(h = 0.5, r = 14, n1 = 64)$z
 #' Z <- Z + rnorm(64^2)*0.2
 #' m1 <- test.bonferroni(Z, wf="la8",J=3, alpha = 0.05)
 #' m2 <- test.efdr(Z, wf="la8",J=3, alpha = 0.05,n.hyp=c(20,40,60,100,120,200,500,1000))
@@ -205,7 +205,8 @@ test.los <- function(Z,wf="la8",J=3,alpha=0.05)
 #' at the centre.
 #' @param h the amplitude of the filled circle
 #' @param r the radius of the circle (in pixesl)
-#' @param n the size of the image (e.g. n=64 implies a 64 x 64 image)
+#' @param n1 image width in pixels
+#' @param n2 image height in pixels
 #' @return List with two elements
 #' \describe{
 #' \item{\code{z}}{the test image}
@@ -216,22 +217,57 @@ test.los <- function(Z,wf="la8",J=3,alpha=0.05)
 #' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 #' @examples
 #' Z <- test_image()$z
-test_image <- function(h=1,r=10,n = 64)   {
+test_image <- function(h=1,r=10,n1 = 64, n2=64)   {
   
   stopifnot(is.numeric(h))
   stopifnot(is.numeric(r))
-  stopifnot(is.numeric(n))
-  stopifnot(r > 0 & r < n)
-  stopifnot(n > 0)
-  stopifnot(.IsPowerOfTwo(n))
+  stopifnot(is.numeric(n1))
+  stopifnot(is.numeric(n2))
+  stopifnot(r > 0 & r < min(n1,n2))
+  stopifnot(n1 > 0)
+  stopifnot(n2 > 0)
+  stopifnot(.IsPowerOfTwo(n1))
+  stopifnot(.IsPowerOfTwo(n2))
   
-  signal=matrix(0,n,n)
-  cutoff <- (n/2) - 0.5
-  signal.grid <- expand.grid(-cutoff:cutoff,-cutoff:cutoff)
+  signal=matrix(0,n1,n2)
+  cutoff1 <- (n1/2) - 0.5
+  cutoff2 <- (n2/2) - 0.5
+  signal.grid <- expand.grid(-cutoff1:cutoff1,-cutoff2:cutoff2)
   
-  distances <- matrix(apply(signal.grid,1,function(x) sqrt(x[1]^2 + x[2]^2)),n)
+  distances <- matrix(apply(signal.grid,1,function(x) sqrt(x[1]^2 + x[2]^2)),n1,n2)
   signal[distances < r] <- h
+  
+  
+  
   return(list(z = signal, grid = as.matrix(signal.grid)))
+}
+
+#' @title Indices of wavelets exceeding a given threshold
+#'
+#' @description This function is primarily used for testing the power of a method in the
+#' wavelet domain. Given an image, the discrete wavelet transform is found. 
+#' The indices of the coefficients which exceed a certain threshold are then
+#' considered the 'signal' for testing purposes.
+#' @param Z image of size \code{n} by \code{n} where \code{n} has to be a power of two
+#' @param wf type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of filter names
+#' @param J number of resolutions to employ in the wavelet decomposition
+#' @param th threshold
+#' @return Indices of wavelet coefficients in a vector
+#' @export
+#' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+#' @examples
+#' Z <- test_image(h = 0.5, r = 14, n1 = 64)$z
+#' print(wav_th(Z,wf="la8",J=3,th=0.5))
+wav_th <- function(Z, wf = "la8", J = 3, th = 1) {
+  stopifnot(is.numeric(th))
+  .check_args(Z = Z,wf = wf,J = J)
+  
+  ## DWT
+  zcoeff <- dwt.2d(x=Z,wf=wf,J=J) %>%
+            unlist()
+            
+  as.numeric(which(abs(zcoeff) >= th))
+  
 }
 
 #' @title Find wavelet neighbourhood
@@ -376,8 +412,31 @@ regrid <- function(df,n1 = 128, n2 = n1, idp = 0.5, nmax = 7) {
 }
 
 
-### return fdr power
-.fdrpower <- function(reject.true,reject) {
+#' @title Power function
+#' 
+#' @description Returns the power of the multiple hypothesis test, by finding
+#' the proportion of the correctly rejected null hypotheses.
+#' @param reject.true the indices of the true alternative hypotheses
+#' @param reject the indices of rejected null hypotheses
+#' @return Single value (proportion)
+#' @export
+#' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+#' @examples
+#' set.seed(1)
+#' wf = "la8"
+#' J = 3
+#' n = 64
+#' h = 0.5
+#' Z <- test_image(h = h, r = 14, n1 = n)$z
+#' sig <- wav_th(Z, wf=wf, J=J, th = h)
+#' 
+#' Z <- Z + rnorm(n^2)*0.5
+#' m1 <- test.bonferroni(Z, wf="la8",J=3, alpha = 0.05)
+#' m2 <- test.fdr(Z, wf="la8",J=3, alpha = 0.05)
+#' 
+#' cat(paste0("Bonferroni power: ",fdrpower(sig,m1$reject_coeff)))
+#' cat(paste0("FDR power: ",fdrpower(sig,m2$reject_coeff)))
+fdrpower <- function(reject.true,reject) {
   length(intersect(reject.true,reject)) / length(reject.true)
 }
 

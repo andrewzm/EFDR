@@ -3,14 +3,16 @@
 \alias{test_image}
 \title{Create a test image}
 \usage{
-test_image(h = 1, r = 10, n = 64)
+test_image(h = 1, r = 10, n1 = 64, n2 = 64)
 }
 \arguments{
 \item{h}{the amplitude of the filled circle}
 
 \item{r}{the radius of the circle (in pixesl)}
 
-\item{n}{the size of the image (e.g. n=64 implies a 64 x 64 image)}
+\item{n1}{image width in pixels}
+
+\item{n2}{image height in pixels}
 }
 \value{
 List with two elements
