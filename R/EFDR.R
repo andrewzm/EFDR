@@ -4,11 +4,11 @@
 #' @import Matrix
 #' @import waveslim
 #' @import gstat
-#' @import doMC
+#' @import doParallel
 #' @import foreach
 #' @import dplyr
 #' @import tidyr
-#' @importFrom parallel detectCores
+#' @import parallel
 #' @name EFDR
 NULL
 

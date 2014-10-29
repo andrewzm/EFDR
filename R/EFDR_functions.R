@@ -293,7 +293,11 @@ nei.efdr <- function(Z,wf="la8",J=3,b=11,parallel=FALSE) {
   layers <- .flat.pack(dwt.z,b=b)
     
   if(parallel) {
-    registerDoMC(detectCores())
+    #registerDoMC(detectCores())
+    cl <- makeCluster(detectCores())
+    registerDoParallel(cl)
+    
+    
     nei <- foreach(i=1 : nrow(layers),.combine = rbind) %dopar% {
       x <- layers[i,]
       L <- subset(layers, abs(x$s1-s1) < 2.5 & abs(x$s2-s2) < 2.5 & abs(x$j - j) < 2)
@@ -302,6 +306,7 @@ nei.efdr <- function(Z,wf="la8",J=3,b=11,parallel=FALSE) {
       as.numeric(rownames(max.set))
     }
     row.names(nei) <- NULL
+    stopCluster(cl)
   } else {
     nei <- t( apply(layers,1,function(x) {
       L <- subset(layers, abs(x['s1']-s1) < 2.5 & abs(x['s2']-s2) < 2.5 & abs(x['j'] - j) < 2)
@@ -484,7 +489,7 @@ fdrpower <- function(reject.true,reject) {
   
   dwt.z <- .std.wav.coeff(dwt.z) # Standardise
   
-  loss <- g <-  n.hyp*0
+  loss <- n.hyp*0
   nz <- length(unlist(dwt.z))
   
   #sigma <- mad(c(c(dwt.z[["LH1"]]),c(dwt.z[["HL1"]]),c(dwt.z[["HH1"]])))
@@ -494,6 +499,7 @@ fdrpower <- function(reject.true,reject) {
   
   
   find_loss <- function(i) {
+    g <-  n.hyp*0
     for(j in 1:iteration){
       delta <-  tau*rnorm(nz)
       dwt_unlist <- unlist(dwt.z) + delta
@@ -511,9 +517,12 @@ fdrpower <- function(reject.true,reject) {
   
   
   if(parallel) {
+    cl <- makeCluster(detectCores())
+    registerDoParallel(cl)
     loss <- foreach(i = seq_along(n.hyp), .combine=c) %dopar% {
       find_loss(i)
     }
+    stopCluster(cl)
   } else {
     for(i in seq_along(n.hyp)){
       loss[i] <- find_loss(i)
@@ -536,7 +545,7 @@ fdrpower <- function(reject.true,reject) {
 #     loss[i] <- sum((unlist(dwt.z)-unlist(dwt.zhat))^2)+2*g[i]*sigma^2
 #   }
   nhat <- n.hyp[order(loss)[1]]
-  list(nhat=nhat,g=g,loss=loss)
+  list(nhat=nhat,loss=loss)
 }
 
 ### apply function for dwt.2d S3 generic
