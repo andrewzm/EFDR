@@ -10,7 +10,7 @@ This package is still under development and is not available on CRAN. To install
 Installation
 ------------
 
-- To install this package, first load `devtools`, then type `install_github('EFDR','andrewzm', dependencies=T)`. Installation of most dependencies is straightforward. If on Linux, for the package `gstat` you will also need to install `libgeos-dev` which is widely available in linux repos. In Ubuntu this is available using `apt-get install libgeos-dev`.
+- To install this package, first load `devtools`, then type `install_github('andrewzm/EFDR', dependencies=T)`. Installation of most dependencies is straightforward. If on Linux, for the package `gstat` you will also need to install `libgeos-dev` which is widely available in linux repos. In Ubuntu this is available using `apt-get install libgeos-dev`.
 
 Open issues
 ---------------
