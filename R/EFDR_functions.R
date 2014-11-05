@@ -445,6 +445,50 @@ fdrpower <- function(reject.true,reject) {
   length(intersect(reject.true,reject)) / length(reject.true)
 }
 
+#' @title 2x2 diagnostic table
+#' 
+#' @description Returns the a 2x2 table resulting from diagnostic evaluation. 
+#' The cells contain the number of true negatives, true positives, false negatives 
+#' and false positives
+#' @param reject.true the indices of the true alternative hypotheses
+#' @param reject the indices of rejected null hypotheses
+#' @param n total number of tests
+#' @return 2x2 matrix
+#' @export
+#' @references Noel Cressie and Sandy Burden (2014). "Evaluation of diagnostics for hierarchical spatial statistical models" Contribution fo Mardia Festschrift.
+#' @examples
+#' set.seed(1)
+#' wf = "la8"
+#' J = 3
+#' n = 64
+#' h = 0.5
+#' Z <- test_image(h = h, r = 14, n1 = n)$z
+#' sig <- wav_th(Z, wf=wf, J=J, th = h)
+#' 
+#' Z <- Z + rnorm(n^2)*0.5
+#' m1 <- test.bonferroni(Z, wf="la8",J=3, alpha = 0.05)
+#' m2 <- test.fdr(Z, wf="la8",J=3, alpha = 0.05)
+#' 
+#' cat("Bonferroni diagnostic table: ",sep="\n")
+#' diagnostic.table(sig,m1$reject_coeff,n = n^2)
+#' cat("FDR diagnostic table: ",sep="\n")
+#' diagnostic.table(sig,m2$reject_coeff,n = n^2)
+diagnostic.table <- function(reject.true,reject, n) {
+  TP = length(intersect(reject.true,reject))
+  FP = length(setdiff(reject.true,reject))
+  
+  accept.true <- setdiff(1:n,reject.true)
+  accept <- setdiff(1:n,reject)
+  TN = length(intersect(accept.true,accept))
+  FN = length(setdiff(accept.true,accept))
+  
+  d.table <- matrix(c(TN,FP,FN,TP),2,2)
+  row.names(d.table) <- c("Diagnostic Negative","Diagnostic Positive")
+  colnames(d.table) <- c("Real Negative","Real Positive")
+  d.table
+  
+}
+
 
 ### check if input is a power of two
 .IsPowerOfTwo <- function(x) {
