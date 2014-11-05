@@ -449,7 +449,7 @@ fdrpower <- function(reject.true,reject) {
 #' 
 #' @description Returns the a 2x2 table resulting from diagnostic evaluation. 
 #' The cells contain the number of true negatives, true positives, false negatives 
-#' and false positives
+#' and false positives.
 #' @param reject.true the indices of the true alternative hypotheses
 #' @param reject the indices of rejected null hypotheses
 #' @param n total number of tests
