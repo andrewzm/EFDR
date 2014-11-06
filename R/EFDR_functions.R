@@ -201,7 +201,7 @@ test.los <- function(Z,wf="la8",J=3,alpha=0.05)
 
 #' @title Create a test image
 #' 
-#' @description This function generates a square image for test purposes. The image is that of a filled circle
+#' @description This function generates an image for test purposes. The image is that of a filled circle
 #' at the centre.
 #' @param h the amplitude of the filled circle
 #' @param r the radius of the circle (in pixesl)
@@ -497,8 +497,8 @@ diagnostic.table <- function(reject.true,reject, n) {
 
 ### check input arguments
 .check_args <- function(Z,wf="la8",J=3,alpha = 0.05,n.hyp = 1L,b = 11L,nei = NULL,iteration = 1L,parallel=FALSE) {
-  if(!is.matrix(Z)) stop("Z needs to be an n x n matrix")
-  if(!(ncol(Z) == nrow(Z))) stop("Z needs to be square")
+  if(!is.matrix(Z)) stop("Z needs to be a matrix")
+  #if(!(ncol(Z) == nrow(Z))) stop("Z needs to be square")
   if(!(.IsPowerOfTwo(ncol(Z))) |  !(.IsPowerOfTwo(nrow(Z)))) stop("Z needs to have rows and columns a power of two")
   temp <- tryCatch({
     wave.filter(wf)
@@ -543,7 +543,7 @@ diagnostic.table <- function(reject.true,reject, n) {
   
   
   find_loss <- function(i) {
-    g <-  n.hyp*0
+    g <-  0
     for(j in 1:iteration){
       delta <-  tau*rnorm(nz)
       dwt_unlist <- unlist(dwt.z) + delta
@@ -551,16 +551,17 @@ diagnostic.table <- function(reject.true,reject, n) {
       #dwt.z.MC.cleaned <- test.efdr.base(dwt.z.MC,alpha = alpha,n.hyp = n.hyp[i],b=b,nei=nei)$filtered
       dwt.z.MC.cleaned <- test.efdr.base(idwt.2d(dwt.z.MC),wf = wf, J = J, alpha = alpha,
                                          n.hyp = n.hyp[i],b=b,nei=nei, parallel=parallel)$filtered
-      g[i] <- g[i]+sum(unlist(dwt.z.MC.cleaned)*delta)
+      g <- g+sum(unlist(dwt.z.MC.cleaned)*delta)
     }
-    g[i] <- g[i]/iteration/tau^2
+    g <- g/iteration/tau^2
     #dwt.zhat <- test.efdr.base(dwt.z,alpha = alpha,n.hyp = n.hyp[i],b=b,nei=nei)$filtered
     dwt.zhat <- test.efdr.base(idwt.2d(dwt.z),wf = wf, J = J,alpha = alpha,n.hyp = n.hyp[i],b=b,nei=nei)$filtered
-    sum((unlist(dwt.z)-unlist(dwt.zhat))^2)+2*g[i]*sigma^2
+    sum((unlist(dwt.z)-unlist(dwt.zhat))^2)+2*g*sigma^2
   }
   
-  
   if(parallel) {
+    
+    
     cl <- makeCluster(detectCores())
     registerDoParallel(cl)
     loss <- foreach(i = seq_along(n.hyp), .combine=c) %dopar% {
@@ -641,16 +642,18 @@ diagnostic.table <- function(reject.true,reject, n) {
   
   M <- 3
   J <- (length(dwt)-1)/M
-  K1 <- K2 <- nrow(dwt[[1]])
+  K1 <- nrow(dwt[[1]])
+  K2 <- ncol(dwt[[1]])
   
-  dwt.t <- array(NA,dim=c(J,M+1,K1,K1))
+  dwt.t <- array(NA,dim=c(J,M+1,K1,K2))
   for (j in 1:J) 
     for(m in 1:M){
       dwt.partial <- dwt[[(j-1)*M + m]]
-      n <- K1*2^{-(j-1)}
-      dwt.t[j,m,1:n,1:n] <- dwt.partial
+      n1 <- K1*2^{-(j-1)}
+      n2 <- K2*2^{-(j-1)}
+      dwt.t[j,m,1:n1,1:n2] <- dwt.partial
     }
-  dwt.t[J,M+1,1:n,1:n] <- dwt[[J*M + 1]]
+  dwt.t[J,M+1,1:n1,1:n2] <- dwt[[J*M + 1]]
   dwt.t
   
 }
@@ -659,16 +662,20 @@ diagnostic.table <- function(reject.true,reject, n) {
   
   M <- 3
   J <- (length(dwt)-1)/M
-  K1 <- K2 <- nrow(dwt[[1]])
+  K1 <- nrow(dwt[[1]])
+  K2 <- ncol(dwt[[1]])
   
-  min_n <- K1*2^{-(J-1)}
+  min_n1 <- K1*2^{-(J-1)}
+  min_n2 <- K2*2^{-(J-1)}
   layers <- list()
   for (j in J:1) {# start from coarsest resolution and go down to the finest
-    n <- K1*2^{-(j-1)}
+    n1 <- K1*2^{-(j-1)}
+    n2 <- K2*2^{-(j-1)}
     ## Set up comparison table
-    s <- seq(0,(min_n+1),,n+2)[-c(1,(n+2))]
-    grid_points <- expand.grid(s,s)
-    k_points <- expand.grid(1:n,1:n)
+    s1 <- seq(0,(min_n1+1),,n1+2)[-c(1,(n1+2))]
+    s2 <- seq(0,(min_n2+1),,n2+2)[-c(1,(n2+2))]
+    grid_points <- expand.grid(s1,s2)
+    k_points <- expand.grid(1:n1,1:n2)
     layers[[j]] <- data.frame(k1 = k_points[,1], k2 = k_points[,2], s1 =  grid_points[,1], s2 = grid_points[,2],m = 1,j=j)
     layers_temp <- layers[[j]]
     for( m in 2:M) {
@@ -689,7 +696,8 @@ diagnostic.table <- function(reject.true,reject, n) {
   
   M <- 3
   J <- (length(dwt)-1)/M
-  K1 <- K2 <- nrow(dwt[[1]])
+  K1 <- nrow(dwt[[1]])
+  K2 <- ncol(dwt[[1]])
   dwt.t <- .jmk.sys(dwt)
   weight <- dwt.t * 0
   layers <- .flat.pack(dwt,b=b)
@@ -704,10 +712,11 @@ diagnostic.table <- function(reject.true,reject, n) {
   weight.list <- dwt
   for (j in 1:J) 
     for(m in 1:M){
-      n <- K1*2^{-(j-1)}
-      weight.list[[(j-1)*M + m]] <- weight[j,m,1:n,1:n]
+      n1 <- K1*2^{-(j-1)}
+      n2 <- K2*2^{-(j-1)}
+      weight.list[[(j-1)*M + m]] <- weight[j,m,1:n1,1:n2]
     }
-  weight.list[[J*M + 1]] <- weight[J,M+1,1:n,1:n]
+  weight.list[[J*M + 1]] <- weight[J,M+1,1:n1,1:n2]
   
   weight.list
 }

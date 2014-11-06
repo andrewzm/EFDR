@@ -22,7 +22,7 @@ List with two elements
 }
 }
 \description{
-This function generates a square image for test purposes. The image is that of a filled circle
+This function generates an image for test purposes. The image is that of a filled circle
 at the centre.
 }
 \examples{
