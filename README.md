@@ -11,12 +11,14 @@ Installation
 ------------
 
 - To install this package, first load `devtools`, then type `install_github('andrewzm/EFDR', dependencies=T)`. Installation of most dependencies is straightforward. If on Linux, for the package `gstat` you will also need to install `libgeos-dev` which is widely available in linux repos. In Ubuntu this is available using `apt-get install libgeos-dev`.
+- The package `waveslim` produces erroneous results when carrying out a DWT on an image which is not square. As a result, `EFDR` with the original `waveslim` package will not work on images which are not square. To use it on non-square images, please download the revised `waveslim` package from https://github.com/andrewzm/waveslim.
+
+
 
 Open issues
 ---------------
 
 - Neighbourhood detection is currently sped up using a parallel backend. This, however, will remain slow on a standard desktop. Suggest implementing in C.
-- The package `waveslim` produces erroneous results when carrying out a DWT on an image which is not square. As a result, `EFDR` will not work on images which are not square.  Suggest altering the `dwt.2d` interface.
 
 
 Package details
