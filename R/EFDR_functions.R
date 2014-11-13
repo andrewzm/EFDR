@@ -409,7 +409,7 @@ regrid <- function(df,n1 = 128, n2 = n1, idp = 0.5, nmax = 7) {
   names(df.regrid) <- c("x","y")
   
   gstat(id = "z", formula = z ~ 1, locations = ~ x + y,
-        data = df, nmax = 7, set = list(idp = idp)) %>%
+        data = df, nmax = nmax, set = list(idp = idp)) %>%
     predict(df.regrid) %>%
     mutate(z = z.pred) %>%
     select(x,y,z)

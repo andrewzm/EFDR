@@ -1,8 +1,8 @@
 #' Enhanced False Detection Rate
 #'
 #' @docType package
+#' @useDynLib EFDR
 #' @import Matrix
-#' @import waveslim
 #' @import gstat
 #' @import doParallel
 #' @import foreach
