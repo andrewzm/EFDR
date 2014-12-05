@@ -1,0 +1,285 @@
+%\VignetteIndexEntry{}
+%\VignetteEngine{knitr::knitr}
+
+---
+title: "Enhanced False Detection Rate"
+author: "Andrew Zammit Mangion"
+date: "05/12/2014"
+output: html_document
+---
+
+
+Enhanced False Detection Rate (EFDR) is a non-parameteric hypothesting testing procedure used for anomaly detection in noisy spatial signals. The method, published by Shen et al. (2002), is an extends standard multiple hypothesis testing approaches (for example those employing the Bonferroni correction, or the standard FDR approach) by reducing the number of tests carried out. A reduced number of tests results in an approach which has more power (i.e. a lower Type II error), and hence an increased ability to detect anomalies. EFDR has proven to be vastly superior to the Bonferroni correction and standard FDR: the interested reader is referred to Shen et al. (2002) for a detailed study.
+
+The purpose of this tutorial is to outline the basics of EFDR and demonstrate the use of the R package, `EFDR`, which can implement EFDR together with other basic  hypothesis testing methods commonly used with spatial signals.
+
+Underlying Theory
+---
+
+The 'enhanced' in EFDR is used to emphasise the increased power of the method over other conventional methods, brought about by reducing the number of hypothesis tests carried out when analysis a spatial signal. The number of tests carried out is reduced in two ways. First, the image is converted into the wavelet domain through a discrete wavelet transform (DWT) (the number of coefficients in wavelet space is less than the number of pixels). Second, tests are only carried out on some wavelet coefficients whose neighbours have relatively large wavelet coefficients. 
+
+The size of the wavelet neighbourhood $b$ is determined by the user, while the definition of what constitutes a neighbour is determined by a metric which is fixed. This metric takes into consideration the (i) resolution, (ii) orientation, and (iii) spatial position of the wavelet. Wavelets at the same resolution are considered closer to each other than wavelets across resolutions. The same holds for orientation and spatial position. For more details on the distance metric employed refer to Shen et al. (2002). In practice, the neighbours of wavelet $i$ are found by calculating the distance to every other wavelet; the $b$ closest wavelets are then assigned as neighbours of the $i^{th}$ wavelet.
+
+If there are $L$ wavelets, then only $L^{*}$ wavelets are tested, and usually $L^{*} \ll L$. A key difficulty is finding a suitable $L^*$ such that Type I error rate (i.e. the number of false discoveries) is controlled at some pre-specified level $\alpha$. One such method, which is proved to control the Type 1 error in the Appendix of Shen et al. (2002), is found by minimising a cost function which penalises for a large $L^*$. The penalisation term requires the evaluation of an intractable integral using Monte Carlo methods.
+
+The EFDR R package: A toy study
+---
+
+As apparent from the previous section, EFDR is a multi-faceted appoach requiring wavelet transforms, neighbourhood selection in a wavelet domain and the evaluation of an optimal $L^*$. The package `EFDR` is designed to facilitate the implementation of EFDR, and uses computationally-efficient parallel methods to render manageable what is naively a highly computationally-intensive approach to false-rate detection. The package is loaded in R as follows. We will also load the package `fields` for plotting purposes:
+
+```{r,message=FALSE}
+library(EFDR)
+library(fields)
+```
+
+Next, the user has to specify an image on which to carry out the analysis. For now, this has to be an $n$ by $n$ image where $n$ is an integer power of 2. To get up and running, we have provided a function `test_image` which generates images similar to those analysed in Shen et al. (2002) with the package. In the following example we generate a 64 by 64 image and add some noise to it before plotting it (a filled circle embedded in Gaussian noise). Note that we also provide functions to deal with data which do not lie on a regular grid through the function `regrid`. This will be discussed later on in the tutorial.
+
+```{r,fig.width=4.25, fig.height=4}
+n = 64
+Z <- test_image(n1=n)$z
+Z_noisy <- Z + 0.2*rnorm(n^2)
+fields::image.plot(Z,zlim=c(-0.5,1.5),asp=1)
+fields::image.plot(Z_noisy,zlim=c(-0.5,1.5),asp=1)
+```
+
+
+Next, the user needs to provide some essential parameters. These are
+- `alpha`:    significance level
+- `wf`:       wavelet name (typically "la8")
+- `J`:        number of multi-level resolutions (for a 64 x 64, 3 is sufficient)
+- `b`:        number of neighbours to consider with EFDR
+- `n.hyp`:    numeric vector from which the optimal $L^*$ will be found
+- `iteration`:  number of iterations in the Monte Carlo integration described earlier
+- `parallel`:   logical variable indicating whether to use a parallel backend or not
+
+
+```{r}
+alpha =     0.05        # 5% significant level
+wf =        "la8"       # wavelet name
+J =         3           # 3 resolutions
+b =         11          # 11 neighbours for EFDR tests
+n.hyp =     c(5,10,20,30,40,60,80,100,400,800,1200,2400,4096)  # find optimal number of tests in EFDR from this list
+iteration = 100         # number of iterations in MC run when finding optimal n in n.hyp
+idp =       0.5         # inverse distance weighting power
+nmax =      15          # maximum number of points to consider when carrying out inverse distance interpolation
+parallel =  TRUE        # use a parallel backend when carrying out EFDR
+set.seed(20)            # same random seed for reproducibility
+```
+
+That's it! Now we can run EFDR. For comparison purposes, the package also provides functions for implementing the Bonferroni, the standard FDR and the Largest Order Statistic method (which simply tests deems the most extreme p-value as significant if less than $(1 - (1-\alpha)^{1/n})$) in wavelet space. The interface to each of these methods is similar.
+
+```{r}
+m1 <- test.bonferroni(Z_noisy, wf=wf,J=J, alpha = alpha)
+m2 <- test.fdr(Z_noisy, wf=wf,J=J, alpha = alpha)
+m3 <- test.los(Z_noisy, wf=wf,J=J, alpha = alpha)
+m4 <- test.efdr(Z_noisy, wf="la8",J=J, alpha = alpha, n.hyp = n.hyp, b=b,iteration=iteration,parallel = parallel)
+```
+
+The functions provide several results, mostly for diagnostic purposes, in a list (see documentation for details). The result of most interest is the image which contains only the 'extreme' wavelet coefficients, stored in the field `Z`. These can be plotted using standard plotting functions.
+
+```{r,fig.width=6.25, fig.height=6.65}
+par(mfrow=c(2,2))
+fields::image.plot(m1$Z,main = "Bonferroni",zlim=c(-1,2),asp=1)
+fields::image.plot(m2$Z,main = "FDR",zlim=c(-1,2),asp=1)
+fields::image.plot(m3$Z,main = "LOS",zlim=c(-1,2),asp=1)
+fields::image.plot(m4$Z,main = "EFDR",zlim=c(-1,2),asp=1)
+```
+
+
+To compute the power of the test (which we can, since we know the truth), we can use the functions `wav_th` and `fdrpower`. The first determines which wavelength coefficients are 'significant' by seeing which, in the raw signal, exceed a given threshold. The second function determines which of these wavelet coefficients were correctly found to be rejected under the null hypothesis
+
+```{r}
+sig <- wav_th(Z,wf=wf,J=J,th=1)
+cat(paste0("Power of Bonferroni test: ",fdrpower(sig,m1$reject_coeff)),sep="\n")
+cat(paste0("Power of FDR test: ",fdrpower(sig,m2$reject_coeff)),sep="\n")
+cat(paste0("Power of LOS test: ",fdrpower(sig,m3$reject_coeff)),sep="\n")
+cat(paste0("Power of EFDR test: ",fdrpower(sig,m4$reject_coeff)),sep="\n")
+```
+
+Another tool delivered with the package is a diagnostic table containing the number of false positives, false negatives, true negatives and true positives. Diagnostic measures such as the false discovery rate, false non-discovery rate, specifity and sensitivity can be computed from this table:
+
+```{r}
+cat("Bonferroni diagnostic table: ",sep="\n")
+diagnostic.table(sig,m1$reject_coeff,n = n^2)
+cat("FDR diagnostic table: ",sep="\n")
+diagnostic.table(sig,m2$reject_coeff,n = n^2)
+cat("LOS diagnostic table: ",sep="\n")
+diagnostic.table(sig,m3$reject_coeff,n = n^2)
+cat("EFDR diagnostic table: ",sep="\n")
+diagnostic.table(sig,m4$reject_coeff,n = n^2)
+```
+
+The above example considered a relatively 'clean' image. The real power of EFDR becomes apparent when analysing very noisy images, where the signal is not even visible on a casual inspection and when having a powerful testing procedure becomes important. In the following we take the same signal, but this time add on a considerable amount of noise before running the aforementioned tests.
+
+
+```{r,fig.width=4.25, fig.height=4}
+set.seed(1) # for reproducibility
+Z <- test_image(n1=n)$z
+Z_noisy <- Z + 2*rnorm(n^2)
+fields::image.plot(Z_noisy)
+        
+m1 <- test.bonferroni(Z_noisy, wf=wf,J=J, alpha = alpha)
+m2 <- test.fdr(Z_noisy, wf=wf,J=J, alpha = alpha)
+m3 <- test.los(Z_noisy, wf=wf,J=J, alpha = alpha)
+m4 <- test.efdr(Z_noisy, wf="la8",J=J, alpha = alpha, n.hyp = n.hyp, b=b,iteration=iteration,parallel = parallel)
+```
+
+```{r,fig.width=6.25, fig.height=6.65}
+par(mfrow=c(2,2))
+fields::image.plot(m1$Z,main = "Bonferroni", zlim=c(-1,2),asp=1)
+fields::image.plot(m2$Z,main = "FDR", zlim=c(-1,2),asp=1)
+fields::image.plot(m3$Z,main = "LOS", zlim=c(-1,2),asp=1)
+fields::image.plot(m4$Z,main = "EFDR", zlim=c(-1,2))
+
+sig <- wav_th(Z,wf=wf,J=J,th=1)        
+cat(paste0("Power of Bonferroni test: ",fdrpower(sig,m1$reject_coeff)),sep="\n")
+cat(paste0("Power of FDR test: ",fdrpower(sig,m2$reject_coeff)),sep="\n")
+cat(paste0("Power of LOS test: ",fdrpower(sig,m3$reject_coeff)),sep="\n")
+cat(paste0("Power of EFDR test: ",fdrpower(sig,m4$reject_coeff)),sep="\n")        
+```
+
+
+In fact, in this case no method detects an anomaly except for EFDR. Note that some spurious signals are detected, this is a result of an inflated Type I error with respect to the other methods but recall that this is still constrained to be less than $\alpha$ under the proposed approach. 
+
+A real example
+---
+
+In this example we implement all the above tests on data from the Atmospheric Infrared Sounder (AIRS). Data is available from http://datahub.io/dataset/airs-co2-data-may-2003.
+
+As a simple case study, we take CO2 data from the first three days in this data set (01 - 03 May 2003) and compare these to data in the second three days (4 - 6 May 2003) in the conterminus United States and Canada. The change in CO2 in  these periods is an indication of the regional flux and we are interested in where the flux is significantly different from zero. This satellite data is irregular in space; it therefore needs to first regridded and interpolated onto an image of appropriate size.
+
+First, load the data set using RCurl:
+```{r}
+library(RCurl)
+airs.raw <- read.table(textConnection(getURL(
+                "http://ckannet-storage.commondatastorage.googleapis.com/2014-10-20T02:58:20.801Z/airs-2003may1-16.csv"
+                )),header=T,sep=",")
+```
+
+
+Now we will concentrate on North America, and change the variable names into the appropriate x-y-z notation required to regrid the data. For this we use some handy functions from the `dplyr` package.
+
+```{r}
+library(dplyr)
+airs.raw <- airs.raw %>%
+  subset(lat > 14 & lat < 66 & lon > -145 & lon < -52) %>%
+  mutate(x=lon,y=lat,z=co2avgret) %>%
+  select(day,x,y,z)
+```
+
+
+For plotting we use the `ggplot2` package which includes the world coastline. Below we plot all the data in the first three days of the data set over North America.
+
+```{r}
+library(ggplot2)
+NorthAmerica <- map_data("world") %>%
+                  subset(region %in% c("USA","Canada","Mexico"))
+par(pin = c(5,1))
+ggplot() + 
+    geom_point(data=subset(airs.raw,day%in% 1:3),aes(x=x,y=y,colour=z)) +
+    geom_path(data=NorthAmerica,aes(x=long,y=lat,group=group)) +
+    scale_colour_gradient(low="yellow",high="blue") +
+    coord_fixed(xlim=c(-145,-52),ylim=c(14,66))
+```
+
+In order to put this data frame into an image or matrix format, we can use `EFDR::regrid`. Regrid requires three parameters:
+- `n1`: the length (in pixels) of the image
+- `n2`: (optional) the height (in pixels) of the image
+- idp: the inverse distance power used in the inverse distance weighting interpolation function used to fill in the gaps
+- nmax: the maximum number of neighbours to consider when carrying out the interpolation (for computational efficiency this is low, around 8).
+
+In the following example we use an inverse squared distance weighting and grid the data into a 128 x 256 image. Note that to use non-square images, you have to install the `waveslim` package from https://github.com/andrewzm/waveslim. The original `waveslim` package does *not* carry out discrete wavelet transforms on non-square images correctly.
+
+```{r}
+idp = 0.5
+n1 = 128
+n2 = 256
+
+airs.interp1 <- airs.raw %>%
+  subset(day %in% 1:3) %>%
+  select(-day) %>%
+  regrid(n1=n1,n2=n2,idp= idp,nmax = nmax) # idp is the inverse distance power and max is the number of neighbours to consider
+    
+ggplot() + 
+    geom_tile(data=airs.interp1,aes(x=x,y=y,fill=z)) +
+    geom_path(data=NorthAmerica,aes(x=long,y=lat,group=group)) +
+    scale_fill_gradient(low="yellow",high="blue") +
+    coord_fixed(xlim=c(-145,-52),ylim=c(14,66))
+```
+
+We are interested in changes in CO2 levels. Below we produce an image of varying CO2 levels by regridding the second part of the data and then finding the difference between the two images
+
+```{r}
+airs.interp2 <- airs.raw %>%
+  subset(day %in% 4:6) %>%
+  select(-day) %>%
+  regrid(n1=n1,n2=n2,idp= idp,nmax = nmax) # idp is the inverse distance power and max is the number of neighbours to consider
+
+airs.interp <- airs.interp2 %>%
+  mutate(z = airs.interp1$z - airs.interp2$z)
+```
+
+The difference image looks as follows
+
+```{r}
+ggplot() + 
+    geom_tile(data=airs.interp,aes(x=x,y=y,fill=z)) +
+    geom_path(data=NorthAmerica,aes(x=long,y=lat,group=group)) +
+    scale_fill_gradient2(low="blue",high="red", mid="#FFFFCC") +
+    coord_fixed(xlim=c(-145,-52),ylim=c(14,66))
+```
+
+We now convert the data frame to an image matrix (using the package function `df.to.mat`) and then carry out the tests as usual
+
+```{r}
+Z <- df.to.mat(airs.interp)
+m1 <- test.bonferroni(Z, wf=wf,J=J, alpha = alpha)
+m2 <- test.fdr(Z, wf=wf,J=J, alpha = alpha)
+m3 <- test.los(Z, wf=wf,J=J, alpha = alpha)
+m4 <- test.efdr(Z, wf="la8",J=J, alpha = alpha, n.hyp = n.hyp, b=b,iteration=iteration,parallel = parallel)
+```
+
+For plotting we re-arrange the data into data frames and then repeat the above. For gridding `ggplot` objects we will use the `gridExtra` package.
+
+```{r}
+library(gridExtra)
+
+airs.interp <- airs.interp %>% 
+                  mutate(m1 = c(m1$Z),
+                         m2 = c(m2$Z),
+                         m3 = c(m3$Z),
+                          m4 = c(m4$Z))
+
+g1 <- ggplot() + 
+    geom_tile(data=airs.interp,aes(x=x,y=y,fill=m1)) +
+    geom_path(data=NorthAmerica,aes(x=long,y=lat,group=group)) +
+    scale_fill_gradient2(low="blue",high="red", mid="#FFFFCC") +
+    coord_fixed(xlim=c(-145,-52),ylim=c(14,66)) + ggtitle("Bonferroni")
+    
+g2 <- ggplot() + 
+    geom_tile(data=airs.interp,aes(x=x,y=y,fill=m2)) +
+    geom_path(data=NorthAmerica,aes(x=long,y=lat,group=group)) +
+    scale_fill_gradient2(low="blue",high="red", mid="#FFFFCC") +
+    coord_fixed(xlim=c(-145,-52),ylim=c(14,66)) + ggtitle("FDR")
+    
+g3 <- ggplot() + 
+    geom_tile(data=airs.interp,aes(x=x,y=y,fill=m3)) +
+    geom_path(data=NorthAmerica,aes(x=long,y=lat,group=group)) +
+    scale_fill_gradient2(low="blue",high="red", mid="#FFFFCC") +
+    coord_fixed(xlim=c(-145,-52),ylim=c(14,66)) + ggtitle("LOS")
+    
+g4 <- ggplot() + 
+    geom_tile(data=airs.interp,aes(x=x,y=y,fill=m4)) +
+    geom_path(data=NorthAmerica,aes(x=long,y=lat,group=group)) +
+    scale_fill_gradient2(low="blue",high="red", mid="#FFFFCC") +
+    coord_fixed(xlim=c(-145,-52),ylim=c(14,66)) + ggtitle("EFDR")
+    
+gridExtra::grid.arrange(g1, g2, g3, g4, ncol=2)
+```
+
+Once again, EFDR is seen to detect more anomalies than all other methods. In this case both LOS and the standard Bonferroni correction do not detect anomalies due to a decreased power. Another example demonstrating the increased power of EFDR using a temperature data set can be found in Shen et al. (2002). 
+
+Reference
+---
+
+Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.

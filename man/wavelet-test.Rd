@@ -32,6 +32,8 @@ the set of proposed number of tests is chosen.}
 
 \item{iteration}{number of Monte Carlo iterations to employ when determining which of the proposed number of tests
 in \code{n.hyp} is the optimal number of tests}
+
+\item{parallel}{flag indicating whether to use a parallel backend or not}
 }
 \value{
 List with three fields:

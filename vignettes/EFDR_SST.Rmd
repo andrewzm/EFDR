@@ -1,0 +1,153 @@
+%\VignetteIndexEntry{}
+%\VignetteEngine{knitr::knitr}
+
+---
+title: "Enhanced False Detection Rate (EFDR)"
+author: "Andrew Zammit Mangion"
+date: "05/12/2014"
+output: html_document
+---
+
+Enhanced False Detection Rate for detecting Sea-Surface Temperature Anomalies
+==================================
+
+
+In this second tutorial we will examine the use of EFDR for anomaly detection of sea-surface temperatures (SST) in the mid-Pacific ocean. Every few years, the sea-surface temperature in this area rises dramatically in a phenomenon named as [El Niño](http://en.wikipedia.org/wiki/El_Ni%C3%B1o). The reverse process, which results in SST cooling in this area, is named [La Niña](http://en.wikipedia.org/wiki/La_Ni%C3%B1a).  Before going through this vignette, it is important you have covered the [first EFDR tutorial](http://nbviewer.ipython.org/github/andrewzm/EFDR/blob/master/ipython/EFDR.ipynb) which illustrates the basic concepts of EFDR and the `R` package we will be using here.
+
+The Code
+---
+
+We will first load some packages which we will use throughout this example:
+
+```{r,message=FALSE}
+library(plyr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(EFDR)
+library(doMC)
+library(foreach)
+library(RCurl)
+```
+
+Second, we will load the SST data available from the website of [Chris Wikle](http://www.stat.missouri.edu/~wikle/datasets.html). There are three data sets which we need, (i) the lon-lat coordinates, (ii) the SST data at these coordinates (at 399 time points, one for each month between January 1970 and March 2003) and (iii) the land mask. For this we use the `RCurl` package. The data is then piped into several pre-processing stages: (i) the data frame is set into `long` format using the `gather` command, (ii) the factor `date` is converted to an integer which we denote `time` and (iii) we subset the data to only include the region of interest without land mass.
+
+```{r}
+sst <- getURL("http://www.stat.missouri.edu/~wikle/SSTlonlat.dat") %>%
+  textConnection() %>%
+  read.table(col.names = c("x","y")) %>%
+  cbind(getURL("http://www.stat.missouri.edu/~wikle/SST011970_032003.dat") %>%
+          textConnection() %>%
+          read.table()) %>%
+  mutate(land = (getURL("http://www.stat.missouri.edu/~wikle/SSTlandmask.dat") %>%
+           textConnection() %>%
+           read.table())[,1]) %>% 
+  gather(date,z,-x,-y,-land) %>%
+  mutate(time = as.numeric(date)) %>%
+  select(-date) %>%
+  subset(x > 155 & x < 280 & y <14&land==0)
+```
+
+We are now ready to implement EFDR. First we declare the parameters (please refer to the first tutorial for a description of these):
+
+```{r}
+### Set parameters
+n1 =        64
+n2 =        32
+idp =       0.5
+nmax =      6
+alpha =     0.05        # 5% significant level
+wf =        "la8"       # wavelet name
+J =         3           # 3 resolutions
+b =         5       
+registerDoMC(detectCores()/2)
+```
+
+The only unusual things here are the setting of `n1` and `n2` which denote the image size. We will be using a 64 x 32 image as the SST data is at a similar resolution in the area of interest. The `registerDoMC(cores=32)` command allocates 32 cores to the following `foreach` operation, which treats each SST time point individually. NB: The following takes a long time and produces quite a lot of output. On a 64 core machine, this took about 10 minutes.
+
+```{r}
+### Carry out EFDR on every frame
+X <- foreach (t = unique(sst$time),.combine=rbind) %dopar% {
+  sst_t <- subset(sst,time==t)
+  sst_t_regrid <- regrid(sst_t,n1=n1,n2=n2,idp= idp,nmax = nmax)
+  sst_t_regrid$zsig <- c(test.efdr(df.to.mat(sst_t_regrid), wf=wf,J=J, alpha = alpha)$Z)
+  sst_t_regrid$t <- t
+  sst_t_regrid
+}
+```
+
+The above operation takes each SST time point, regrids it on the 64 x 32 grid, and then carries out EFDR on each image... simple! The results are then combined into one long data frame. 
+
+Results
+---
+
+To visualise the results we first create a function which plots the significant areas of each image. For this we harness the power of `ggplot()`. We will not go through the code in detail as most of it is mundane and self-explanatory.
+
+```{r}
+### Plotting
+world<-map_data('world')%>%
+  mutate(long = ifelse(long < 80,long + 360,long) ) %>%
+  subset(long > 80 & long < 340)
+
+base_plot <- MVST::LinePlotTheme() + geom_path(data=world,aes(x=long,y=lat,group=group)) +
+  geom_rect(data=data.frame(x1=155,x2=280,y1=14,y2=-29),
+            mapping=aes(xmin=x1,xmax=x2,ymin=y1,ymax=y2),alpha=0,colour="black",linetype="dashed")
+
+plot_time <- function(i) {
+    base_plot + 
+    geom_tile(data=subset(X,t==i),aes(x,y,fill=zsig,alpha=abs(zsig))) + 
+    geom_text(data=data.frame(txt=floor((i-1)/12)+1970),aes(x=265, y = -50, label=txt),size=10) +
+    scale_fill_gradient2(low="blue",mid="white",high="red",limits=c(-6,6)) +
+    scale_alpha(guide = 'none') +
+    guides(fill=guide_legend(title="degC"))+
+    coord_fixed(xlim=c(120,300))   
+}
+```
+
+What I did next is produce a video, but since this takes a *really* long time, I will just add the code below for those interested, but not evaluate it.
+
+```{r,eval=FALSE}
+### Do video
+library(animation)
+oopt <- animation::ani.options(interval = 0.7)
+
+FUN2 <- function() {
+ t = 1:399
+ lapply(t, function(i) {
+   print(plot_time(i))
+   ani.pause()
+ })
+}
+
+FUN2()
+saveHTML(FUN2(), autoplay = FALSE, loop = FALSE, verbose = FALSE, outdir = ".",
+        single.opts = "'controls': ['first', 'previous', 'play', 'next', 'last', 'loop', 'speed'], 'delayMin': 0")
+```
+
+Here, instead, we will simply plot some of the interesting figures. Occurrences of El Niño and La Niña, and the respective strength, are given in http://ggweather.com/enso/oni.htm. The video (not shown) gives a clear indication when these have occurred. The frames which stand-out correspond to those given in the cited website, and I plot some of these below:
+
+```{r}
+#August 1972 strong El Niño event
+plot_time(2*12 + 8)
+```
+
+```{r}
+#January 1974 strong La Niña event
+plot_time(4*12 + 1)
+```
+```{r}
+#November 1975 strong La Niña event
+plot_time(5*12 + 11)
+```
+
+```{r}
+#December 1982 strong El Niño event
+plot_time(12*12 + 12)
+```
+
+```{r}
+#August 1997 strong El Niño event
+plot_time(27*12 + 8)
+```
+
+Most of the reported strong instances of the El Nino Southern Oscillation Pattern were captured correctly using EFDR. One notable omission was the reportedly strong El Nina in 1999-2000.

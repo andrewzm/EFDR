@@ -3,12 +3,11 @@
 #' @docType package
 #' @useDynLib EFDR
 #' @import Matrix
-#' @import gstat
-#' @import doParallel
-#' @import foreach
-#' @import dplyr
-#' @import tidyr
 #' @import parallel
+#' @import dplyr
+#' @import foreach
+#' @importFrom tidyr spread
+#' @importFrom doParallel registerDoParallel
+#' @importFrom gstat gstat
 #' @name EFDR
 NULL
-

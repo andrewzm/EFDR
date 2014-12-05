@@ -16,6 +16,7 @@
 #' @param b the number of neighbours to consider in EFDR
 #' @param iteration number of Monte Carlo iterations to employ when determining which of the proposed number of tests 
 #' in \code{n.hyp} is the optimal number of tests
+#' @param parallel flag indicating whether to use a parallel backend or not
 #' @return List with three fields:
 #' \describe{
 #'  \item{\code{filtered}}{the discrete wavelet transform containing the anomalous wavelet coefficients in the signal.}
@@ -272,12 +273,15 @@ wav_th <- function(Z, wf = "la8", J = 3, th = 1) {
 
 #' @title Find wavelet neighbourhood
 #' 
-#' @description Given a wavelet basis from object \code{waveslim}, this function returns a matrix of size \code{N} by \code{b}
-#' where \code{N} is the number of wavelets and \code{b} is the number of neighbours per wavelet. Two wavelets are deemed
+#' @description Given an image, this function first computes the 2d DWT and  then returns a 
+#' matrix of size \code{N} by \code{b} where \code{N} is the number of wavelets and \code{b} 
+#' is the number of neighbours per wavelet. Two wavelets are deemed
 #' to be neighbours according to the metric of Shen, Huang and Cressie (2002). The distance metric is a function of  the
 #' spatial separation, the resolution and the orientation.
-#' @param dwt object of class \code{dwt.2d}
-#' @param b number of neighbours per wavelet
+#' @param Z image of size \code{n} by \code{n} where \code{n} has to be a power of two
+#' @param wf type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of filter names
+#' @param J number of resolutions to employ in the wavelet decomposition
+#' @param b the number of neighbours to consider in EFDR#' 
 #' @param parallel flag to indicate whether multi-threading should be used or not
 #' @return matrix of size \code{N} by \code{b}
 #' @keywords wavelets, neighbourhood
@@ -739,239 +743,239 @@ diagnostic.table <- function(reject.true,reject, n) {
 ### DEPRECATED
 ##############################
 
-### Find the EFDR neighbourhood weights
-.weights.efdr <- function(dwt) {
-  weight <- dwt
-  n <- nrow(weight[[1]])
-  
-  for(i in 1:3){
-    temp <- array(0,c(12,n,n))
-    temp[1,,] <- dwt[[i]][c(2:n,1),]^2
-    temp[2,,] <- dwt[[i]][c(n,1:(n-1)),]^2
-    temp[3,,] <- dwt[[i]][,c(2:n,1)]^2
-    temp[4,,] <- dwt[[i]][,c(n,1:(n-1))]^2
-    temp[5,,] <- dwt[[i]][c(2:n,1),c(2:n,1)]^2
-    temp[6,,] <- dwt[[i]][c(n,1:(n-1)),c(n,1:(n-1))]^2
-    temp[7,,] <- dwt[[i]][c(n,1:(n-1)),c(2:n,1)]^2
-    temp[8,,] <- dwt[[i]][c(2:n,1),c(n,1:(n-1))]^2
-    temp[9,,] <- kronecker(dwt[[i+3]]^2,matrix(1,2,2))
-    temp[10,,] <- dwt[[1]]^2
-    temp[11,,] <- dwt[[2]]^2
-    temp[12,,] <- dwt[[3]]^2
-    temp[i+9,,] <- matrix(0,n,n)
-    weight[[i]] <- apply(temp,c(2,3),max)
-  }
-  
-  
-  n <- nrow(weight[[4]])
-  for(i in 4:6){
-    temp <- array(0,c(12,n,n))
-    temp[1,,] <- dwt[[i]][c(2:n,1),]^2
-    temp[2,,] <- dwt[[i]][c(n,1:(n-1)),]^2
-    temp[3,,] <- dwt[[i]][,c(2:n,1)]^2
-    temp[4,,] <- dwt[[i]][,c(n,1:(n-1))]^2
-    temp[5,,] <- kronecker(dwt[[i+3]]^2,matrix(1,2,2))
-    temp[6,,] <- dwt[[i-3]][2*(1:n)-1,2*(1:n)-1]^2
-    temp[7,,] <- dwt[[i-3]][2*(1:n)-1,2*(1:n)]^2
-    temp[8,,] <- dwt[[i-3]][2*(1:n),2*(1:n)-1]^2
-    temp[9,,] <- dwt[[i-3]][2*(1:n),2*(1:n)]^2
-    temp[10,,] <- dwt[[4]]^2
-    temp[11,,] <- dwt[[5]]^2
-    temp[12,,] <- dwt[[6]]^2
-    temp[i+6,,] <- matrix(0,n,n) ### AGAIN REMOVING THE LOCAL NODE... WHY??
-    weight[[i]] <- apply(temp,c(2,3),max)
-  }
-  
-  n <- nrow(weight[[7]])
-  for(i in 7:9){
-    temp <- array(0,c(12,n,n))
-    temp[1,,] <- dwt[[i]][c(2:n,1),]^2
-    temp[2,,] <- dwt[[i]][c(n,1:(n-1)),]^2
-    temp[3,,] <- dwt[[i]][,c(2:n,1)]^2
-    temp[4,,] <- dwt[[i]][,c(n,1:(n-1))]^2
-    temp[5,,] <- dwt[[i-3]][2*(1:n)-1,2*(1:n)-1]^2
-    temp[6,,] <- dwt[[i-3]][2*(1:n)-1,2*(1:n)]^2
-    temp[7,,] <- dwt[[i-3]][2*(1:n),2*(1:n)-1]^2
-    temp[8,,] <- dwt[[i-3]][2*(1:n),2*(1:n)]^2
-    temp[9,,] <- dwt[[7]]^2
-    temp[10,,] <- dwt[[8]]^2
-    temp[11,,] <- dwt[[9]]^2
-    temp[12,,] <- dwt[[10]]^2
-    temp[i+2,,] <- matrix(0,n,n)
-    weight[[i]] <- apply(temp,c(2,3),max)
-  }
-  
-  ### Replace coefficients with largest order statistics of neighbours
-  ### PROBLEM: WHY ISN'T THE NODE IN QUESTION CONSIDERED??
-  temp <- array(0,c(12,n,n))
-  temp[1,,] <- dwt[[10]][c(2:n,1),]^2 # neighbours below
-  temp[2,,] <- dwt[[10]][c(8,1:(n-1)),]^2 # neighbours to the left
-  temp[3,,] <- dwt[[10]][,c(2:n,1)]^2 # neighbours to the right
-  temp[4,,] <- dwt[[10]][,c(n,1:(n-1))]^2 # neighbours above
-  temp[5,,] <- dwt[[10]][c(2:n,1),c(2:n,1)]^2 # neighbours bottom right
-  temp[6,,] <- dwt[[10]][c(2:n,1),c(n,1:(n-1))]^2 # neighbours bottom left
-  temp[7,,] <- dwt[[10]][c(n,1:(n-1)),c(2:n,1)]^2 # neighbours top right
-  temp[8,,] <- dwt[[10]][c(n,1:(n-1)),c(n,1:(n-1))]^2 # neighbours top left
-  temp[9,,] <- dwt[[7]]^2  # same scale different orientation
-  temp[10,,] <- dwt[[8]]^2 # same scale different orientation
-  temp[11,,] <- dwt[[9]]^2 # same scale different orientation
-  weight[[10]] <- apply(temp,c(2,3),max) # maximum from all neighbours
-  
-  weight[[10]] <- weight[[10]]/weight[[10]] * 1e10 # Set v(0) to infinity as in paper
-  
-  weight
-  
-}
-
-
-### Find the EFDR neighbourhood weights
-.weights.efdr2 <- function(dwt,b=11) {
-  
-  ## Put into j,m,k1,k2 coordinate system
-  M <- 3
-  J <- (length(dwt)-1)/M
-  K1 <- K2 <- nrow(dwt[[1]])
-  
-  dwt.t <- array(NA,dim=c(J,M+1,K1,K1))
-  for (j in 1:J) 
-    for(m in 1:M){
-      dwt.partial <- dwt[[(j-1)*M + m]]
-      n <- K1*2^{-(j-1)}
-      dwt.t[j,m,1:n,1:n] <- dwt.partial
-    }
-  
-  dwt.t[J,M+1,1:n,1:n] <- dwt[[J*M + 1]]
-  
-  weight <- dwt.t * 0
-  for (j in J:1) {# start from coarsest resolution and go down to the finest
-    n <- K1*2^{-(j-1)}
-    
-    ## Set up comparison table
-    grid_points1 <- expand.grid(1:n,1:n)
-    grid_points2 <- expand.grid(1:(2*n),1:(2*n))
-    grid_points3 <- expand.grid(1:(n/2),1:(n/2))
-    
-    layers <- data.frame(k1 =  grid_points1[,1], k2 = grid_points1[,2],m = 1,j=j)
-    layers <- rbind(layers,data.frame(k1 =  grid_points2[,1], k2 = grid_points2[,2],m = 1,j=j-1))
-    layers <- rbind(layers,data.frame(k1 =  grid_points3[,1], k2 = grid_points3[,2],m = 1,j=j+1))
-    layers_temp <- layers
-    for( m in 2:M) {
-      layers_temp$m <- m
-      layers <- rbind(layers,layers_temp)
-    }
-    
-    # If we also need to include the scaling function coefficients
-    if (j == J) {
-      layers <- rbind(layers,data.frame(k1 =  grid_points1[,1], k2 = grid_points1[,2],m = 4,j=j))
-    }
-    if (j == (J-1)) {
-      layers <- rbind(layers,data.frame(k1 =  grid_points3[,1], k2 = grid_points3[,2],m = 4,j=j + 1))
-    }
-    
-    layers <- subset(layers, j %in% 1:J)
-    
-    layers2 <- ddply(layers,"j",function(df) {
-      if (df$j[1] == j){
-        df$s1 = df$k1
-        df$s2 = df$k2
-      } else if(df$j[1] == (j - 1)) {
-        df$s1 = (df$k1 + 1)/2
-        df$s2 = (df$k2 + 1)/2
-      } else {
-        df$s1 = 2*df$k1 - 1
-        df$s2 = 2*df$k2 - 1
-      }
-      return(df)
-    })
-    
-    for (m in 1:M)
-      for(k1 in 1:n)
-        for(k2 in 1:n) {
-          this_k1 <- k1; this_k2 <- k2
-          L <- subset(layers2, abs(this_k1-s1) < 2.5 & abs(this_k2-s2) < 2.5)
-          L$D1 <- .jmk.dist(j,m,k1,k2,L$j,L$m,L$s1,L$s2)
-          max.set <- L[order(L$D1),][2:(b+1),]
-          weight[j,m,k1,k2] <- max(dwt.t[cbind(max.set$j,max.set$m,max.set$k1,max.set$k2)]^2)
-        }
-  }
-  weight[J,M+1,,] <- 1e10
-  
-  
-  weight.list <- dwt
-  for (j in 1:J) 
-    for(m in 1:M){
-      n <- K1*2^{-(j-1)}
-      weight.list[[(j-1)*M + m]] <- weight[j,m,1:n,1:n]
-    }
-  weight.list[[J*M + 1]] <- weight[J,M+1,1:n,1:n]
-  
-  
-  weight.list
-}
-
-
-
-### Add noise to object
-add.noise <- function(dwt,noise_sd) {
-  .lapply.dwt(dwt, f = function(x) {
-    x + rnorm(length(x),sd=noise_sd)})                 
-}
-
-
-
-.regrid <- function(df,n1 = 128, n2 = n1) {
-  
-  stopifnot(is.data.frame(df))
-  stopifnot("x" %in% names(df))
-  stopifnot("y" %in% names(df))
-  stopifnot("z" %in% names(df))
-  stopifnot(is.numeric(n1))
-  stopifnot(is.numeric(n2))
-  stopifnot((n1 %% 1 == 0)  & n1 > 0 )
-  stopifnot((n2 %% 1 == 0)  & n2 > 0 )
-  
-  xlim=c(min(df$x),max(df$x))
-  ylim=c(min(df$y),max(df$y))
-  
-  x0 <- seq(xlim[1],xlim[2],,n1+1)
-  y0 <- seq(ylim[1],ylim[2],,n2+1)
-  
-  xd <- mean(diff(x0))/2
-  yd <- mean(diff(y0))/2
-  
-  xy.grid <- expand.grid(x0[-1] - xd,y0[-1] - yd)
-  names(xy.grid) <- c("x","y")
-  xy.grid <- xy.grid %>% mutate(xbox =  cut(x, breaks = x0,labels = FALSE), 
-                                ybox =  cut(y, breaks = y0,labels = FALSE))
-  
-  df <- df %>% mutate(xbox =  cut(x, breaks = x0,labels = FALSE), 
-                      ybox =  cut(y, breaks = y0,labels = FALSE)) %>%  
-    select(xbox,ybox,z) %>%
-    filter(!is.na(xbox) & !(is.na(ybox))) %>%
-    group_by(xbox,ybox) %>%
-    summarise(z = mean(z)) %>%
-    merge(xy.grid,by=c("xbox","ybox"),all.y=T)
-  
-}
-
-
-.interp.idw <- function(df,idp=0.5,nmax=7) {
-  
-  stopifnot(is.data.frame(df))
-  stopifnot("x" %in% names(df))
-  stopifnot("y" %in% names(df))
-  stopifnot("z" %in% names(df))
-  stopifnot(is.numeric(idp))
-  stopifnot(idp > 0)
-  stopifnot(is.numeric(nmax))
-  stopifnot((nmax %% 1 == 0)  & nmax > 0 )
-  
-  df1 <- subset(df,!is.na(z))
-  df2 <- subset(df,select=c("x","y"))
-  gstat(id = "z", formula = z ~ 1, locations = ~ x + y,
-        data = df1, nmax = 7, set = list(idp = idp)) %>%
-    predict(df2) %>%
-    mutate(z = z.pred) %>%
-    select(x,y,z)
-}
-
+# ### Find the EFDR neighbourhood weights
+# .weights.efdr <- function(dwt) {
+#   weight <- dwt
+#   n <- nrow(weight[[1]])
+#   
+#   for(i in 1:3){
+#     temp <- array(0,c(12,n,n))
+#     temp[1,,] <- dwt[[i]][c(2:n,1),]^2
+#     temp[2,,] <- dwt[[i]][c(n,1:(n-1)),]^2
+#     temp[3,,] <- dwt[[i]][,c(2:n,1)]^2
+#     temp[4,,] <- dwt[[i]][,c(n,1:(n-1))]^2
+#     temp[5,,] <- dwt[[i]][c(2:n,1),c(2:n,1)]^2
+#     temp[6,,] <- dwt[[i]][c(n,1:(n-1)),c(n,1:(n-1))]^2
+#     temp[7,,] <- dwt[[i]][c(n,1:(n-1)),c(2:n,1)]^2
+#     temp[8,,] <- dwt[[i]][c(2:n,1),c(n,1:(n-1))]^2
+#     temp[9,,] <- kronecker(dwt[[i+3]]^2,matrix(1,2,2))
+#     temp[10,,] <- dwt[[1]]^2
+#     temp[11,,] <- dwt[[2]]^2
+#     temp[12,,] <- dwt[[3]]^2
+#     temp[i+9,,] <- matrix(0,n,n)
+#     weight[[i]] <- apply(temp,c(2,3),max)
+#   }
+#   
+#   
+#   n <- nrow(weight[[4]])
+#   for(i in 4:6){
+#     temp <- array(0,c(12,n,n))
+#     temp[1,,] <- dwt[[i]][c(2:n,1),]^2
+#     temp[2,,] <- dwt[[i]][c(n,1:(n-1)),]^2
+#     temp[3,,] <- dwt[[i]][,c(2:n,1)]^2
+#     temp[4,,] <- dwt[[i]][,c(n,1:(n-1))]^2
+#     temp[5,,] <- kronecker(dwt[[i+3]]^2,matrix(1,2,2))
+#     temp[6,,] <- dwt[[i-3]][2*(1:n)-1,2*(1:n)-1]^2
+#     temp[7,,] <- dwt[[i-3]][2*(1:n)-1,2*(1:n)]^2
+#     temp[8,,] <- dwt[[i-3]][2*(1:n),2*(1:n)-1]^2
+#     temp[9,,] <- dwt[[i-3]][2*(1:n),2*(1:n)]^2
+#     temp[10,,] <- dwt[[4]]^2
+#     temp[11,,] <- dwt[[5]]^2
+#     temp[12,,] <- dwt[[6]]^2
+#     temp[i+6,,] <- matrix(0,n,n) ### AGAIN REMOVING THE LOCAL NODE... WHY??
+#     weight[[i]] <- apply(temp,c(2,3),max)
+#   }
+#   
+#   n <- nrow(weight[[7]])
+#   for(i in 7:9){
+#     temp <- array(0,c(12,n,n))
+#     temp[1,,] <- dwt[[i]][c(2:n,1),]^2
+#     temp[2,,] <- dwt[[i]][c(n,1:(n-1)),]^2
+#     temp[3,,] <- dwt[[i]][,c(2:n,1)]^2
+#     temp[4,,] <- dwt[[i]][,c(n,1:(n-1))]^2
+#     temp[5,,] <- dwt[[i-3]][2*(1:n)-1,2*(1:n)-1]^2
+#     temp[6,,] <- dwt[[i-3]][2*(1:n)-1,2*(1:n)]^2
+#     temp[7,,] <- dwt[[i-3]][2*(1:n),2*(1:n)-1]^2
+#     temp[8,,] <- dwt[[i-3]][2*(1:n),2*(1:n)]^2
+#     temp[9,,] <- dwt[[7]]^2
+#     temp[10,,] <- dwt[[8]]^2
+#     temp[11,,] <- dwt[[9]]^2
+#     temp[12,,] <- dwt[[10]]^2
+#     temp[i+2,,] <- matrix(0,n,n)
+#     weight[[i]] <- apply(temp,c(2,3),max)
+#   }
+#   
+#   ### Replace coefficients with largest order statistics of neighbours
+#   ### PROBLEM: WHY ISN'T THE NODE IN QUESTION CONSIDERED??
+#   temp <- array(0,c(12,n,n))
+#   temp[1,,] <- dwt[[10]][c(2:n,1),]^2 # neighbours below
+#   temp[2,,] <- dwt[[10]][c(8,1:(n-1)),]^2 # neighbours to the left
+#   temp[3,,] <- dwt[[10]][,c(2:n,1)]^2 # neighbours to the right
+#   temp[4,,] <- dwt[[10]][,c(n,1:(n-1))]^2 # neighbours above
+#   temp[5,,] <- dwt[[10]][c(2:n,1),c(2:n,1)]^2 # neighbours bottom right
+#   temp[6,,] <- dwt[[10]][c(2:n,1),c(n,1:(n-1))]^2 # neighbours bottom left
+#   temp[7,,] <- dwt[[10]][c(n,1:(n-1)),c(2:n,1)]^2 # neighbours top right
+#   temp[8,,] <- dwt[[10]][c(n,1:(n-1)),c(n,1:(n-1))]^2 # neighbours top left
+#   temp[9,,] <- dwt[[7]]^2  # same scale different orientation
+#   temp[10,,] <- dwt[[8]]^2 # same scale different orientation
+#   temp[11,,] <- dwt[[9]]^2 # same scale different orientation
+#   weight[[10]] <- apply(temp,c(2,3),max) # maximum from all neighbours
+#   
+#   weight[[10]] <- weight[[10]]/weight[[10]] * 1e10 # Set v(0) to infinity as in paper
+#   
+#   weight
+#   
+# }
+# 
+# 
+# ### Find the EFDR neighbourhood weights
+# .weights.efdr2 <- function(dwt,b=11) {
+#   
+#   ## Put into j,m,k1,k2 coordinate system
+#   M <- 3
+#   J <- (length(dwt)-1)/M
+#   K1 <- K2 <- nrow(dwt[[1]])
+#   
+#   dwt.t <- array(NA,dim=c(J,M+1,K1,K1))
+#   for (j in 1:J) 
+#     for(m in 1:M){
+#       dwt.partial <- dwt[[(j-1)*M + m]]
+#       n <- K1*2^{-(j-1)}
+#       dwt.t[j,m,1:n,1:n] <- dwt.partial
+#     }
+#   
+#   dwt.t[J,M+1,1:n,1:n] <- dwt[[J*M + 1]]
+#   
+#   weight <- dwt.t * 0
+#   for (j in J:1) {# start from coarsest resolution and go down to the finest
+#     n <- K1*2^{-(j-1)}
+#     
+#     ## Set up comparison table
+#     grid_points1 <- expand.grid(1:n,1:n)
+#     grid_points2 <- expand.grid(1:(2*n),1:(2*n))
+#     grid_points3 <- expand.grid(1:(n/2),1:(n/2))
+#     
+#     layers <- data.frame(k1 =  grid_points1[,1], k2 = grid_points1[,2],m = 1,j=j)
+#     layers <- rbind(layers,data.frame(k1 =  grid_points2[,1], k2 = grid_points2[,2],m = 1,j=j-1))
+#     layers <- rbind(layers,data.frame(k1 =  grid_points3[,1], k2 = grid_points3[,2],m = 1,j=j+1))
+#     layers_temp <- layers
+#     for( m in 2:M) {
+#       layers_temp$m <- m
+#       layers <- rbind(layers,layers_temp)
+#     }
+#     
+#     # If we also need to include the scaling function coefficients
+#     if (j == J) {
+#       layers <- rbind(layers,data.frame(k1 =  grid_points1[,1], k2 = grid_points1[,2],m = 4,j=j))
+#     }
+#     if (j == (J-1)) {
+#       layers <- rbind(layers,data.frame(k1 =  grid_points3[,1], k2 = grid_points3[,2],m = 4,j=j + 1))
+#     }
+#     
+#     layers <- subset(layers, j %in% 1:J)
+#     
+#     layers2 <- ddply(layers,"j",function(df) {
+#       if (df$j[1] == j){
+#         df$s1 = df$k1
+#         df$s2 = df$k2
+#       } else if(df$j[1] == (j - 1)) {
+#         df$s1 = (df$k1 + 1)/2
+#         df$s2 = (df$k2 + 1)/2
+#       } else {
+#         df$s1 = 2*df$k1 - 1
+#         df$s2 = 2*df$k2 - 1
+#       }
+#       return(df)
+#     })
+#     
+#     for (m in 1:M)
+#       for(k1 in 1:n)
+#         for(k2 in 1:n) {
+#           this_k1 <- k1; this_k2 <- k2
+#           L <- subset(layers2, abs(this_k1-s1) < 2.5 & abs(this_k2-s2) < 2.5)
+#           L$D1 <- .jmk.dist(j,m,k1,k2,L$j,L$m,L$s1,L$s2)
+#           max.set <- L[order(L$D1),][2:(b+1),]
+#           weight[j,m,k1,k2] <- max(dwt.t[cbind(max.set$j,max.set$m,max.set$k1,max.set$k2)]^2)
+#         }
+#   }
+#   weight[J,M+1,,] <- 1e10
+#   
+#   
+#   weight.list <- dwt
+#   for (j in 1:J) 
+#     for(m in 1:M){
+#       n <- K1*2^{-(j-1)}
+#       weight.list[[(j-1)*M + m]] <- weight[j,m,1:n,1:n]
+#     }
+#   weight.list[[J*M + 1]] <- weight[J,M+1,1:n,1:n]
+#   
+#   
+#   weight.list
+# }
+# 
+# 
+# 
+# ### Add noise to object
+# add.noise <- function(dwt,noise_sd) {
+#   .lapply.dwt(dwt, f = function(x) {
+#     x + rnorm(length(x),sd=noise_sd)})                 
+# }
+# 
+# 
+# 
+# .regrid <- function(df,n1 = 128, n2 = n1) {
+#   
+#   stopifnot(is.data.frame(df))
+#   stopifnot("x" %in% names(df))
+#   stopifnot("y" %in% names(df))
+#   stopifnot("z" %in% names(df))
+#   stopifnot(is.numeric(n1))
+#   stopifnot(is.numeric(n2))
+#   stopifnot((n1 %% 1 == 0)  & n1 > 0 )
+#   stopifnot((n2 %% 1 == 0)  & n2 > 0 )
+#   
+#   xlim=c(min(df$x),max(df$x))
+#   ylim=c(min(df$y),max(df$y))
+#   
+#   x0 <- seq(xlim[1],xlim[2],,n1+1)
+#   y0 <- seq(ylim[1],ylim[2],,n2+1)
+#   
+#   xd <- mean(diff(x0))/2
+#   yd <- mean(diff(y0))/2
+#   
+#   xy.grid <- expand.grid(x0[-1] - xd,y0[-1] - yd)
+#   names(xy.grid) <- c("x","y")
+#   xy.grid <- xy.grid %>% mutate(xbox =  cut(x, breaks = x0,labels = FALSE), 
+#                                 ybox =  cut(y, breaks = y0,labels = FALSE))
+#   
+#   df <- df %>% mutate(xbox =  cut(x, breaks = x0,labels = FALSE), 
+#                       ybox =  cut(y, breaks = y0,labels = FALSE)) %>%  
+#     select(xbox,ybox,z) %>%
+#     filter(!is.na(xbox) & !(is.na(ybox))) %>%
+#     group_by(xbox,ybox) %>%
+#     summarise(z = mean(z)) %>%
+#     merge(xy.grid,by=c("xbox","ybox"),all.y=T)
+#   
+# }
+# 
+# 
+# .interp.idw <- function(df,idp=0.5,nmax=7) {
+#   
+#   stopifnot(is.data.frame(df))
+#   stopifnot("x" %in% names(df))
+#   stopifnot("y" %in% names(df))
+#   stopifnot("z" %in% names(df))
+#   stopifnot(is.numeric(idp))
+#   stopifnot(idp > 0)
+#   stopifnot(is.numeric(nmax))
+#   stopifnot((nmax %% 1 == 0)  & nmax > 0 )
+#   
+#   df1 <- subset(df,!is.na(z))
+#   df2 <- subset(df,select=c("x","y"))
+#   gstat(id = "z", formula = z ~ 1, locations = ~ x + y,
+#         data = df1, nmax = 7, set = list(idp = idp)) %>%
+#     predict(df2) %>%
+#     mutate(z = z.pred) %>%
+#     select(x,y,z)
+# }
+# 

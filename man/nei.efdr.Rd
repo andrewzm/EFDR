@@ -6,18 +6,23 @@
 nei.efdr(Z, wf = "la8", J = 3, b = 11, parallel = FALSE)
 }
 \arguments{
-\item{b}{number of neighbours per wavelet}
+\item{Z}{image of size \code{n} by \code{n} where \code{n} has to be a power of two}
+
+\item{wf}{type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of filter names}
+
+\item{J}{number of resolutions to employ in the wavelet decomposition}
+
+\item{b}{the number of neighbours to consider in EFDR#'}
 
 \item{parallel}{flag to indicate whether multi-threading should be used or not}
-
-\item{dwt}{object of class \code{dwt.2d}}
 }
 \value{
 matrix of size \code{N} by \code{b}
 }
 \description{
-Given a wavelet basis from object \code{waveslim}, this function returns a matrix of size \code{N} by \code{b}
-where \code{N} is the number of wavelets and \code{b} is the number of neighbours per wavelet. Two wavelets are deemed
+Given an image, this function first computes the 2d DWT and  then returns a
+matrix of size \code{N} by \code{b} where \code{N} is the number of wavelets and \code{b}
+is the number of neighbours per wavelet. Two wavelets are deemed
 to be neighbours according to the metric of Shen, Huang and Cressie (2002). The distance metric is a function of  the
 spatial separation, the resolution and the orientation.
 }
