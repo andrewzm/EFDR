@@ -10,7 +10,7 @@ This package is still under development and is not available on CRAN. To install
 Examples
 --------
 
-For a tutorial on how to use this package, please visit http://nbviewer.ipython.org/github/andrewzm/EFDR/blob/master/ipython/EFDR.ipynb. For a case study on the detection of the El Niño and El Niña phenomena, please visit http://nbviewer.ipython.org/github/andrewzm/EFDR/blob/master/ipython/EFDR_SST.ipynb.
+For a tutorial on how to use this package, please click [here](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/vignettes/EFDR.html). For a case study on the detection of the El Niño and El Niña phenomena, please click [here](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/vignettes/EFDR_SST.html).
 
 Installation
 ------------
