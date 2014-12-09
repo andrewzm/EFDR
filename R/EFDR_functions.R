@@ -206,8 +206,8 @@ test.los <- function(Z,wf="la8",J=3,alpha=0.05)
 #' at the centre.
 #' @param h the amplitude of the filled circle
 #' @param r the radius of the circle (in pixesl)
-#' @param n1 image width in pixels
-#' @param n2 image height in pixels
+#' @param n1 image height in pixels
+#' @param n2 image width in pixels
 #' @return List with two elements
 #' \describe{
 #' \item{\code{z}}{the test image}
@@ -298,7 +298,7 @@ nei.efdr <- function(Z,wf="la8",J=3,b=11,parallel=FALSE) {
     
   if(parallel) {
     #registerDoMC(detectCores())
-    cl <- makeCluster(detectCores())
+    cl <- makeCluster(detectCores()-1)
     registerDoParallel(cl)
     
     
@@ -358,8 +358,7 @@ df.to.mat <- function(df) {
          where x0 and y0 are the x and y grid points")
   spread(df,key = x,value=z) %>%
     select(-y) %>%
-    as.matrix() %>%
-    t()
+    as.matrix()
 }
 
 
@@ -367,11 +366,11 @@ df.to.mat <- function(df) {
 #' @title Regrid ir/regular data
 #' 
 #' @description Given a data frame with fields \code{x, y} and \code{z}, \code{regrid} returns a data frame with
-#' fields \code{x, y} and \code{z}, this time with \code{x, y} arranged on a regular grid of size \code{n} by 
-#' \code{n}. 
+#' fields \code{x, y} and \code{z}, this time with \code{x, y} arranged on a regular grid of size \code{n1} by 
+#' \code{n2}. 
 #' @param df data frame with fields \code{x}, \code{y} and \code{z}
-#' @param n1 image length in pixels
-#' @param n2 image height in pixels
+#' @param n1 image height in pixels
+#' @param n2 image length in pixels
 #' @param idp the inverse distance power
 #' @param nmax the number of nearest neighbours to consider when interpolating
 #' @return data frame with \code{x,y} as gridded values
@@ -385,7 +384,7 @@ df.to.mat <- function(df) {
 #' @examples
 #' df <- data.frame(x = runif(200),y = runif(200),z=rnorm(200))
 #' df.gridded <- regrid(df, n1=10)
-regrid <- function(df,n1 = 128, n2 = n1, idp = 0.5, nmax = 7) {
+regrid <- function(df,n1 = 128, n2 = n1, method="idw", idp = 0.5, nmax = 7) {
   
   stopifnot(is.data.frame(df))
   stopifnot("x" %in% names(df))
@@ -399,12 +398,13 @@ regrid <- function(df,n1 = 128, n2 = n1, idp = 0.5, nmax = 7) {
   stopifnot(idp > 0)
   stopifnot(is.numeric(nmax))
   stopifnot((nmax %% 1 == 0)  & nmax > 0 )
+  stopifnot(method %in% c("idw","median_polish"))
   
   xlim=c(min(df$x),max(df$x))
   ylim=c(min(df$y),max(df$y))
   
-  x0 <- seq(xlim[1],xlim[2],,n1+1)
-  y0 <- seq(ylim[1],ylim[2],,n2+1)
+  x0 <- seq(xlim[1],xlim[2],,n2+1)
+  y0 <- seq(ylim[1],ylim[2],,n1+1)
   
   xd <- mean(diff(x0))/2
   yd <- mean(diff(y0))/2
@@ -412,11 +412,44 @@ regrid <- function(df,n1 = 128, n2 = n1, idp = 0.5, nmax = 7) {
   df.regrid <- expand.grid(x0[-1] - xd,y0[-1] - yd)
   names(df.regrid) <- c("x","y")
   
-  gstat(id = "z", formula = z ~ 1, locations = ~ x + y,
-        data = df, nmax = nmax, set = list(idp = idp)) %>%
-    predict(df.regrid) %>%
-    mutate(z = z.pred) %>%
-    select(x,y,z)
+  if(method == "idw") {  
+    
+    gstat(id = "z", formula = z ~ 1, locations = ~ x + y,
+          data = df, nmax = nmax, set = list(idp = idp)) %>%
+      predict(df.regrid) %>%
+      mutate(z = z.pred) %>%
+      select(x,y,z)
+  } else {
+    x02 <- seq(xlim[1] - diff(xlim)/n1/2,xlim[2] + diff(xlim)/n1/2,,n1+1)
+    y02 <- seq(ylim[1] - diff(ylim)/n1/2,ylim[2] + diff(ylim)/n2/2,,n2+1)
+    
+    df.boxed <- df %>%
+      mutate(box_x = cut(x,x02,labels=F),
+             box_y = cut(y,y02,labels=F)) %>%
+      group_by(box_x,box_y) %>%
+      summarise(z = mean(z)) %>%
+      data.frame()
+      
+    Z <- df.regrid %>% 
+      mutate(box_x = cut(x,x02,labels=F),
+             box_y = cut(y,y02,labels=F)) %>%
+      left_join(df.boxed,by=c("box_x","box_y")) %>%
+      select(x,y,z) %>%
+      df.to.mat()
+    
+    med_Z <- medpolish(Z,na.rm=T)
+    if (any(is.na(med_Z$row)) | any(is.na(med_Z$col))) 
+      stop("Grid with chosen size has rows or columns with 
+           no observations. Use method='idw' or a lower resolution.")
+    med_Z$residuals[which(is.na(Z),arr.ind=T)] <- 0 # use median polish where we do not have data
+    df.regrid$z <- c(med_Z$overall + 
+                outer(med_Z$row,med_Z$col, "+") + 
+                med_Z$residuals)
+    
+      
+      head(which(is.na(Z),arr.ind=T))
+      
+  }
   
 }
 
@@ -566,7 +599,7 @@ diagnostic.table <- function(reject.true,reject, n) {
   if(parallel) {
     
     
-    cl <- makeCluster(detectCores())
+    cl <- makeCluster(detectCores()-1)
     registerDoParallel(cl)
     loss <- foreach(i = seq_along(n.hyp), .combine=c) %dopar% {
       find_loss(i)
