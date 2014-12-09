@@ -10,9 +10,9 @@ test_image(h = 1, r = 10, n1 = 64, n2 = 64)
 
 \item{r}{the radius of the circle (in pixesl)}
 
-\item{n1}{image width in pixels}
+\item{n1}{image height in pixels}
 
-\item{n2}{image height in pixels}
+\item{n2}{image width in pixels}
 }
 \value{
 List with two elements

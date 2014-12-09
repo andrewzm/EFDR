@@ -358,7 +358,8 @@ df.to.mat <- function(df) {
          where x0 and y0 are the x and y grid points")
   spread(df,key = x,value=z) %>%
     select(-y) %>%
-    as.matrix()
+    as.matrix() %>% 
+    t()
 }
 
 
@@ -366,11 +367,11 @@ df.to.mat <- function(df) {
 #' @title Regrid ir/regular data
 #' 
 #' @description Given a data frame with fields \code{x, y} and \code{z}, \code{regrid} returns a data frame with
-#' fields \code{x, y} and \code{z}, this time with \code{x, y} arranged on a regular grid of size \code{n1} by 
-#' \code{n2}. 
+#' fields \code{x, y} and \code{z}, this time with \code{x, y} arranged on a regular grid of size \code{n2} by 
+#' \code{n1}.
 #' @param df data frame with fields \code{x}, \code{y} and \code{z}
-#' @param n1 image height in pixels
-#' @param n2 image length in pixels
+#' @param n1 image length in pixels
+#' @param n2 image height in pixels
 #' @param idp the inverse distance power
 #' @param nmax the number of nearest neighbours to consider when interpolating
 #' @return data frame with \code{x,y} as gridded values
@@ -403,8 +404,8 @@ regrid <- function(df,n1 = 128, n2 = n1, method="idw", idp = 0.5, nmax = 7) {
   xlim=c(min(df$x),max(df$x))
   ylim=c(min(df$y),max(df$y))
   
-  x0 <- seq(xlim[1],xlim[2],,n2+1)
-  y0 <- seq(ylim[1],ylim[2],,n1+1)
+  x0 <- seq(xlim[1],xlim[2],,n1+1)
+  y0 <- seq(ylim[1],ylim[2],,n2+1)
   
   xd <- mean(diff(x0))/2
   yd <- mean(diff(y0))/2
@@ -445,10 +446,7 @@ regrid <- function(df,n1 = 128, n2 = n1, method="idw", idp = 0.5, nmax = 7) {
     df.regrid$z <- c(med_Z$overall + 
                 outer(med_Z$row,med_Z$col, "+") + 
                 med_Z$residuals)
-    
-      
-      head(which(is.na(Z),arr.ind=T))
-      
+
   }
   
 }

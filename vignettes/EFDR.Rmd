@@ -198,8 +198,8 @@ In the following example we use an inverse squared distance weighting and grid t
 
 ```{r,fig.height=3,fig.width=6}
 idp = 0.5
-n1 = 128
-n2 = 256
+n1 = 256
+n2 = 128
 
 airs.interp1 <- airs.raw %>%
   subset(day %in% 1:3) %>%
@@ -237,7 +237,7 @@ ggplot() +
 
 We now convert the data frame to an image matrix (using the package function `df.to.mat`) and then carry out the tests as usual
 
-```{r,cache=TRUE}
+```{r,cache=FALSE}
 Z <- df.to.mat(airs.interp)
 m1 <- test.bonferroni(Z, wf=wf,J=J, alpha = alpha)
 m2 <- test.fdr(Z, wf=wf,J=J, alpha = alpha)

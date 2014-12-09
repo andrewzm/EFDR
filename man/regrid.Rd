@@ -3,7 +3,7 @@
 \alias{regrid}
 \title{Regrid ir/regular data}
 \usage{
-regrid(df, n1 = 128, n2 = n1, idp = 0.5, nmax = 7)
+regrid(df, n1 = 128, n2 = n1, method = "idw", idp = 0.5, nmax = 7)
 }
 \arguments{
 \item{df}{data frame with fields \code{x}, \code{y} and \code{z}}
@@ -21,8 +21,8 @@ data frame with \code{x,y} as gridded values
 }
 \description{
 Given a data frame with fields \code{x, y} and \code{z}, \code{regrid} returns a data frame with
-fields \code{x, y} and \code{z}, this time with \code{x, y} arranged on a regular grid of size \code{n} by
-\code{n}.
+fields \code{x, y} and \code{z}, this time with \code{x, y} arranged on a regular grid of size \code{n2} by
+\code{n1}.
 }
 \details{
 The function overlays a grid over the data. The cells are constructed evenly within the bounding
