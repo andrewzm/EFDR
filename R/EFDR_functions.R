@@ -372,14 +372,24 @@ df.to.mat <- function(df) {
 #' @param df data frame with fields \code{x}, \code{y} and \code{z}
 #' @param n1 image length in pixels
 #' @param n2 image height in pixels
+#' @param method method to be used, see details
 #' @param idp the inverse distance power
 #' @param nmax the number of nearest neighbours to consider when interpolating
 #' @return data frame with \code{x,y} as gridded values
-#' @details The function overlays a grid over the data. The cells are constructed evenly within the bounding 
-#' box of the data. The cells are filled with interpolated values using the inverse weighting distance metric 
+#' @details There are two supported methods for regridding. The first, "idw" is 
+#' the inverse distance weighting method. The function overlays a grid over the data. 
+#' The cells are constructed evenly within the bounding 
+#' box of the data and filled with interpolated values using the inverse weighting distance metric 
 #' with power \code{idp}. \code{nmax} determines the maximum number of neighbours when using the distance weighting.
-#' Interpolation uses the inverse distance weight function \code{gstat} in the \code{gstat} package.
+#' With this method, interpolation uses the inverse distance weight function \code{gstat} in the \code{gstat} package.
 #' Refer to the package \code{gstat} for more details and formulae.
+#' 
+#' The second method "median_polishing" applies a median polish to the data. First, a grid is overlayed. If more than one
+#' data point is present in each grid box, the mean of the data is taken. Where there is no data, the grid box is assigned
+#' a value of NA. This gridded image is then passed to the function \code{medpolish} which carried out Tukey's median
+#' polish procedure to obtain an interpolant of the form \eqn{z(s) = \mu + a(s1) + b(s2)} where \eqn{s1} is the x-axis and
+#' \eqn{s2} is the y-axis. Missing points in the gridded image are then replaced with \eqn{z(s)} evaluated at these points. This method 
+#' cannot be used if all rows and columns do not contain at least one data point.
 #' @keywords regrid,interpolate, inverse distance weighting
 #' @export
 #' @examples
@@ -446,6 +456,7 @@ regrid <- function(df,n1 = 128, n2 = n1, method="idw", idp = 0.5, nmax = 7) {
     df.regrid$z <- c(med_Z$overall + 
                 outer(med_Z$row,med_Z$col, "+") + 
                 med_Z$residuals)
+    df.regrid
 
   }
   
