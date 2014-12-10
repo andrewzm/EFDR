@@ -54,7 +54,7 @@ Next, the user needs to provide some essential parameters. These are
 - `b`:        number of neighbours to consider with EFDR
 - `n.hyp`:    numeric vector from which the optimal $L^*$ will be found
 - `iteration`:  number of iterations in the Monte Carlo integration described earlier
-- `parallel`:   logical variable indicating whether to use a parallel backend or not
+- `parallel`:   number of cores to use
 
 
 ```{r}
@@ -66,13 +66,13 @@ n.hyp =     c(5,10,20,30,40,60,80,100,400,800,1200,2400,4096)  # find optimal nu
 iteration = 100         # number of iterations in MC run when finding optimal n in n.hyp
 idp =       0.5         # inverse distance weighting power
 nmax =      15          # maximum number of points to consider when carrying out inverse distance interpolation
-parallel =  TRUE        # use a parallel backend when carrying out EFDR
+parallel =  2L          # use two cores
 set.seed(20)            # same random seed for reproducibility
 ```
 
 That's it! Now we can run EFDR. For comparison purposes, the package also provides functions for implementing the Bonferroni, the standard FDR and the Largest Order Statistic method (which simply tests deems the most extreme p-value as significant if less than $(1 - (1-\alpha)^{1/n})$) in wavelet space. The interface to each of these methods is similar.
 
-```{r,cache=TRUE}
+```{r,cache=FALSE}
 m1 <- test.bonferroni(Z_noisy, wf=wf,J=J, alpha = alpha)
 m2 <- test.fdr(Z_noisy, wf=wf,J=J, alpha = alpha)
 m3 <- test.los(Z_noisy, wf=wf,J=J, alpha = alpha)
@@ -116,7 +116,7 @@ diagnostic.table(sig,m4$reject_coeff,n = n^2)
 The above example considered a relatively 'clean' image. The real power of EFDR becomes apparent when analysing very noisy images, where the signal is not even visible on a casual inspection and when having a powerful testing procedure becomes important. In the following we take the same signal, but this time add on a considerable amount of noise before running the aforementioned tests.
 
 
-```{r,fig.width=4.25, fig.height=4,cache=TRUE}
+```{r,fig.width=4.25, fig.height=4,cache=FALSE}
 set.seed(1) # for reproducibility
 Z <- test_image(n1=n)$z
 Z_noisy <- Z + 2*rnorm(n^2)
@@ -152,7 +152,7 @@ In this example we implement all the above tests on data from the Atmospheric In
 As a simple case study, we take CO2 data from the first three days in this data set (01 - 03 May 2003) and compare these to data in the second three days (4 - 6 May 2003) in the conterminus United States and Canada. The change in CO2 in  these periods is an indication of the regional flux and we are interested in where the flux is significantly different from zero. This satellite data is irregular in space; it therefore needs to first regridded and interpolated onto an image of appropriate size.
 
 First, load the data set using RCurl:
-```{r,message=FALSE,cache=TRUE}
+```{r,message=FALSE,cache=FALSE}
 library(RCurl)
 airs.raw <- read.table(textConnection(getURL(
                 "http://ckannet-storage.commondatastorage.googleapis.com/2014-10-20T02:58:20.801Z/airs-2003may1-16.csv"
@@ -162,7 +162,7 @@ airs.raw <- read.table(textConnection(getURL(
 
 Now we will concentrate on North America, and change the variable names into the appropriate x-y-z notation required to regrid the data. For this we use some handy functions from the `dplyr` package.
 
-```{r,message=FALSE,cache=TRUE}
+```{r,message=FALSE,cache=FALSE}
 library(dplyr)
 airs.raw <- airs.raw %>%
   subset(lat > 14 & lat < 66 & lon > -145 & lon < -52) %>%
@@ -215,7 +215,7 @@ ggplot() +
 
 We are interested in changes in CO2 levels. Below we produce an image of varying CO2 levels by regridding the second part of the data and then finding the difference between the two images
 
-```{r,cache=TRUE}
+```{r,cache=FALSE}
 airs.interp2 <- airs.raw %>%
   subset(day %in% 4:6) %>%
   select(-day) %>%

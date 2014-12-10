@@ -16,7 +16,7 @@
 #' @param b the number of neighbours to consider in EFDR
 #' @param iteration number of Monte Carlo iterations to employ when determining which of the proposed number of tests 
 #' in \code{n.hyp} is the optimal number of tests
-#' @param parallel flag indicating whether to use a parallel backend or not
+#' @param parallel number of cores to use with parallel backend. Needs to be an integer less than the number of available cores.
 #' @return List with three fields:
 #' \describe{
 #'  \item{\code{filtered}}{the discrete wavelet transform containing the anomalous wavelet coefficients in the signal.}
@@ -33,7 +33,7 @@
 #' Z <- Z + rnorm(64^2)*0.2
 #' m1 <- test.bonferroni(Z, wf="la8",J=3, alpha = 0.05)
 #' m2 <- test.efdr(Z, wf="la8",J=3, alpha = 0.05,n.hyp=c(20,40,60,100,120,200,500,1000))
-test.efdr <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,iteration = 200, parallel = FALSE)
+test.efdr <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,iteration = 200, parallel = 1L)
 {
   
   .check_args(Z = Z,wf = wf,J = J,alpha = alpha,n.hyp = n.hyp,b = b,iteration = iteration,parallel = parallel)
@@ -51,7 +51,7 @@ test.efdr <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,iteration = 20
   test.efdr.base(Z, wf=wf,J=J, alpha = alpha, n.hyp = nhat, b=b, nei=nei)
 }
   
-test.efdr.base <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,nei = NULL, parallel = F)
+test.efdr.base <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,nei = NULL, parallel = 1L)
 {
   .check_args(Z = Z,wf = wf,J = J,alpha = alpha,n.hyp = n.hyp,b = b,nei = nei, parallel = parallel)
   
@@ -282,7 +282,7 @@ wav_th <- function(Z, wf = "la8", J = 3, th = 1) {
 #' @param wf type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of filter names
 #' @param J number of resolutions to employ in the wavelet decomposition
 #' @param b the number of neighbours to consider in EFDR#' 
-#' @param parallel flag to indicate whether multi-threading should be used or not
+#' @param parallel number of cores to use with parallel backend. Needs to be an integer less than the number of available cores.
 #' @return matrix of size \code{N} by \code{b}
 #' @keywords wavelets, neighbourhood
 #' @export
@@ -290,15 +290,15 @@ wav_th <- function(Z, wf = "la8", J = 3, th = 1) {
 #' @examples
 #' image <- matrix(rnorm(64),8,8)
 #  nei <- nei.efdr(image,b=11)
-nei.efdr <- function(Z,wf="la8",J=3,b=11,parallel=FALSE) {
+nei.efdr <- function(Z,wf="la8",J=3,b=11,parallel=1L) {
   
-  .check_args(Z=Z,wf=wf,J=J,b=b)
+  .check_args(Z=Z,wf=wf,J=J,b=b,parallel=parallel)
   dwt.z <- dwt.2d(x=Z,wf=wf,J=J)  
   layers <- .flat.pack(dwt.z,b=b)
     
-  if(parallel) {
+  if(parallel > 1L) {
     #registerDoMC(detectCores())
-    cl <- makeCluster(detectCores()-1)
+    cl <- makeCluster(parallel)
     registerDoParallel(cl)
     
     
@@ -542,7 +542,7 @@ diagnostic.table <- function(reject.true,reject, n) {
 }
 
 ### check input arguments
-.check_args <- function(Z,wf="la8",J=3,alpha = 0.05,n.hyp = 1L,b = 11L,nei = NULL,iteration = 1L,parallel=FALSE) {
+.check_args <- function(Z,wf="la8",J=3,alpha = 0.05,n.hyp = 1L,b = 11L,nei = NULL,iteration = 1L,parallel=1L) {
   if(!is.matrix(Z)) stop("Z needs to be a matrix")
   #if(!(ncol(Z) == nrow(Z))) stop("Z needs to be square")
   if(!(.IsPowerOfTwo(ncol(Z))) |  !(.IsPowerOfTwo(nrow(Z)))) stop("Z needs to have rows and columns a power of two")
@@ -558,7 +558,8 @@ diagnostic.table <- function(reject.true,reject, n) {
   if(any(n.hyp > length(unlist(dwt.2d(Z,wf=wf))))) stop("Every element in n.hyp needs to be smaller 
    than the number of wavelet coefficients (i.e. smaller than the number of tests available)")
   if(!((b %% 1 == 0)  & b > 0 )) stop("b needs to be an integer greater than zero")
-  if(!is.logical(parallel)) stop("parallel needs to be a logical variable")
+  if(!((parallel %% 1 == 0)  & parallel > 0 )) stop("parallel needs to be a positive integer")
+  if(parallel > detectCores()) stop("parallel needs to be less than the number of available cores")
 #   if(!(is.null(nei))) {
 #     if(!is.matrix(nei)) stop("nei needs to be a matrix or NULL")
 #     if(!all(dim(nei) == c(length(unlist(dwt.z)),b))) stop("nei needs to be of the correct dimensions (n x b)")
@@ -566,7 +567,7 @@ diagnostic.table <- function(reject.true,reject, n) {
 }
 
 ### function to find the L*
-.gdf <- function(Z, wf = "la8", J = 3, alpha = 0.05, n.hyp=c(100,150,200),iteration=200,b=11,nei=NULL,parallel=FALSE)
+.gdf <- function(Z, wf = "la8", J = 3, alpha = 0.05, n.hyp=c(100,150,200),iteration=200,b=11,nei=NULL,parallel=1L)
 {
   
   stopifnot(is.numeric(iteration))
@@ -605,10 +606,10 @@ diagnostic.table <- function(reject.true,reject, n) {
     sum((unlist(dwt.z)-unlist(dwt.zhat))^2)+2*g*sigma^2
   }
   
-  if(parallel) {
+  if(parallel > 1L) {
     
     
-    cl <- makeCluster(detectCores()-1)
+    cl <- makeCluster(parallel)
     registerDoParallel(cl)
     loss <- foreach(i = seq_along(n.hyp), .combine=c) %dopar% {
       find_loss(i)

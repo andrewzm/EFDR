@@ -52,7 +52,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 
 
 <div id="enhanced-false-detection-rate-for-detecting-sea-surface-temperature-anomalies" class="section level1">
-<h1>Enhanced False Detection Rate for detecting Sea-Surface Temperature Anomalies</h1>
+<h1>Enhanced False Detection Rate for detecting sea-surface temperature anomalies</h1>
 <p><strong>Andrew Zammit Mangion</strong></p>
 <p><strong>04-Dec-2014</strong></p>
 <p>In this second tutorial we will examine the use of EFDR for anomaly detection of sea-surface temperatures (SST) in the mid-Pacific ocean. Every few years, the sea-surface temperature in this area rises dramatically in a phenomenon named as <a href="http://en.wikipedia.org/wiki/El_Ni%C3%B1o">El Niño</a>. The reverse process, which results in SST cooling in this area, is named <a href="http://en.wikipedia.org/wiki/La_Ni%C3%B1a">La Niña</a>. Before going through this vignette, it is important you have covered the <a href="http://nbviewer.ipython.org/github/andrewzm/EFDR/blob/master/ipython/EFDR.ipynb">first EFDR tutorial</a> which illustrates the basic concepts of EFDR and the <code>R</code> package we will be using here.</p>
@@ -62,7 +62,6 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)
 <span class="kw">library</span>(tidyr)
 <span class="kw">library</span>(ggplot2)
-<span class="kw">library</span>(doParallel)
 <span class="kw">library</span>(foreach)
 <span class="kw">library</span>(RCurl)</code></pre>
 <p>Second, we will load the SST data available from the website of <a href="http://www.stat.missouri.edu/~wikle/datasets.html">Chris Wikle</a>. There are three data sets which we need, (i) the lon-lat coordinates, (ii) the SST data at these coordinates (at 399 time points, one for each month between January 1970 and March 2003) and (iii) the land mask. For this we use the <code>RCurl</code> package. The data is then piped into several pre-processing stages: (i) the data frame is set into <code>long</code> format using the <code>gather</code> command, (ii) the factor <code>date</code> is converted to an integer which we denote <code>time</code> and (iii) we subset the data to only include the region of interest without land mass.</p>
@@ -88,20 +87,18 @@ nmax =<span class="st">      </span><span class="dv">6</span>
 alpha =<span class="st">     </span><span class="fl">0.05</span>        <span class="co"># 5% significant level</span>
 wf =<span class="st">        &quot;la8&quot;</span>       <span class="co"># wavelet name</span>
 J =<span class="st">         </span><span class="dv">3</span>           <span class="co"># 3 resolutions</span>
-b =<span class="st">         </span><span class="dv">5</span>       
-cl &lt;-<span class="st"> </span><span class="kw">makeCluster</span>(parallel::<span class="kw">detectCores</span>()/<span class="dv">2</span>)
-<span class="kw">registerDoParallel</span>(cl)</code></pre>
+b =<span class="st">         </span><span class="dv">5</span>     
+parallel =<span class="st">  </span>2L</code></pre>
 <p>The only unusual things here are the setting of <code>n1</code> and <code>n2</code> which denote the image size. We will be using a 64 x 32 image as the SST data is at a similar resolution in the area of interest. The <code>registerDoParallel()</code> command allocates half of your machine’s cores to the following <code>foreach</code> operation, which treats each SST time point individually. NB: The following takes a long time and produces quite a lot of output. On a 64 core machine, this took about 10 minutes.</p>
 <pre class="sourceCode r"><code class="sourceCode r">### Carry out EFDR on every frame
-X &lt;-<span class="st"> </span><span class="kw">foreach</span> (<span class="dt">t =</span> <span class="kw">unique</span>(sst$time),<span class="dt">.combine=</span>rbind) %dopar%<span class="st"> </span>{
+X &lt;-<span class="st"> </span><span class="kw">foreach</span> (<span class="dt">t =</span> <span class="kw">unique</span>(sst$time),<span class="dt">.combine=</span>rbind) %do%<span class="st"> </span>{
   <span class="kw">library</span>(EFDR)
   sst_t &lt;-<span class="st"> </span><span class="kw">subset</span>(sst,time==t)
   sst_t_regrid &lt;-<span class="st"> </span><span class="kw">regrid</span>(sst_t,<span class="dt">n1=</span>n1,<span class="dt">n2=</span>n2,<span class="dt">idp=</span> idp,<span class="dt">nmax =</span> nmax)
-  sst_t_regrid$zsig &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">test.efdr</span>(<span class="kw">df.to.mat</span>(sst_t_regrid), <span class="dt">wf=</span>wf,<span class="dt">J=</span>J, <span class="dt">alpha =</span> alpha)$Z)
+  sst_t_regrid$zsig &lt;-<span class="st"> </span><span class="kw">c</span>(<span class="kw">test.efdr</span>(<span class="kw">df.to.mat</span>(sst_t_regrid), <span class="dt">wf=</span>wf,<span class="dt">J=</span>J, <span class="dt">alpha =</span> alpha,<span class="dt">parallel=</span>parallel)$Z)
   sst_t_regrid$t &lt;-<span class="st"> </span>t
   sst_t_regrid
 }</code></pre>
-<pre class="sourceCode r"><code class="sourceCode r"><span class="kw">stopCluster</span>(cl)</code></pre>
 <p>The above operation takes each SST time point, regrids it on the 64 x 32 grid, and then carries out EFDR on each image… simple! The results are then combined into one long data frame.</p>
 </div>
 <div id="results" class="section level2">
