@@ -8,7 +8,7 @@
 \title{Test for anomalies in wavelet space}
 \usage{
 test.efdr(Z, wf = "la8", J = 3, alpha = 0.05, n.hyp = 100, b = 11,
-  iteration = 200, parallel = FALSE)
+  iteration = 200, parallel = 1L)
 
 test.fdr(Z, wf = "la8", J = 3, alpha = 0.05)
 
@@ -33,7 +33,7 @@ the set of proposed number of tests is chosen.}
 \item{iteration}{number of Monte Carlo iterations to employ when determining which of the proposed number of tests
 in \code{n.hyp} is the optimal number of tests}
 
-\item{parallel}{flag indicating whether to use a parallel backend or not}
+\item{parallel}{number of cores to use with parallel backend. Needs to be an integer less than the number of available cores.}
 }
 \value{
 List with three fields:

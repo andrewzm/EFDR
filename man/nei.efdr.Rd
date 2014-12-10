@@ -3,7 +3,7 @@
 \alias{nei.efdr}
 \title{Find wavelet neighbourhood}
 \usage{
-nei.efdr(Z, wf = "la8", J = 3, b = 11, parallel = FALSE)
+nei.efdr(Z, wf = "la8", J = 3, b = 11, parallel = 1L)
 }
 \arguments{
 \item{Z}{image of size \code{n} by \code{n} where \code{n} has to be a power of two}
@@ -14,7 +14,7 @@ nei.efdr(Z, wf = "la8", J = 3, b = 11, parallel = FALSE)
 
 \item{b}{the number of neighbours to consider in EFDR#'}
 
-\item{parallel}{flag to indicate whether multi-threading should be used or not}
+\item{parallel}{number of cores to use with parallel backend. Needs to be an integer less than the number of available cores.}
 }
 \value{
 matrix of size \code{N} by \code{b}
