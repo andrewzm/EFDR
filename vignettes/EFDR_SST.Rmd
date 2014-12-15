@@ -12,7 +12,7 @@ Enhanced False Discovery Rate (EFDR): Detecting sea-surface temperature anomalie
 
 **04-Dec-2014**
 
-In this second tutorial we will examine the use of EFDR for anomaly detection of sea-surface temperatures (SST) in the tropical Pacific ocean. Every few or more years, the sea-surface temperature in this area rises dramatically in a phenomenon known as [El Niño](http://en.wikipedia.org/wiki/El_Ni%C3%B1o). The reverse process, which results in SST cooling in this area, is named [La Niña](http://en.wikipedia.org/wiki/La_Ni%C3%B1a).  Before going through this vignette, it is important you have covered the [first EFDR tutorial](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/vignettes/EFDR.html) which illustrates the basic concepts of EFDR and the `R` package we will be using here.
+In this second tutorial we will examine the use of EFDR for anomaly detection of sea-surface temperatures (SST) in the tropical Pacific ocean. Every few or more years, the sea-surface temperature in this area rises dramatically in a phenomenon known as [El Niño](http://en.wikipedia.org/wiki/El_Ni%C3%B1o). The reverse effect, SST cooling in this area, is named [La Niña](http://en.wikipedia.org/wiki/La_Ni%C3%B1a).  Before going through this vignette, it is important you have covered the [first EFDR tutorial](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/vignettes/EFDR.html) which illustrates the basic concepts of EFDR and the `R` package we will be using here.
 
 ## The Code
 
@@ -139,24 +139,15 @@ saveHTML(FUN2(), autoplay = FALSE, loop = FALSE, verbose = FALSE, outdir = ".",
 
 Here, instead, we will simply plot some of the interesting time points. Occurrences of El Niño and La Niña, and the respective strength, are given in http://ggweather.com/enso/oni.htm. The video (not shown) gives a clear indication when these have occurred. The time points which stand-out correspond to those given in the cited website, although on one occasion (1999--2000) the EFDR-smoothed plot did not show the La Niña event in the original SST data. We plot some of the detected anomalies below:
 
-```{r,fig.height=6,fig.width=6,fig.show="animate"}
+```{r,fig.height=6,fig.width=6,fig.show="animate",interval=1}
 #August 1972 strong El Niño event
 plot_time(2*12 + 8)
 #January 1974 strong La Niña event
 plot_time(4*12 + 1)
-```
-
-```{r,fig.height=6,fig.width=6}
 #November 1975 strong La Niña event
 plot_time(5*12 + 11)
-```
-
-```{r,fig.height=6,fig.width=6}
 #December 1982 strong El Niño event
 plot_time(12*12 + 12)
-```
-
-```{r,fig.height=6,fig.width=6}
 #August 1997 strong El Niño event
 plot_time(27*12 + 8)
 ```

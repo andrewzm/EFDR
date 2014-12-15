@@ -7,23 +7,23 @@
 #' 
 #' @description Test for anomalies using either \code{bonferroni}, \code{FDR}, \code{EFDR} or \code{LOS} in the
 #' wavelet domain.
-#' @param Z image of size \code{n} by \code{n} where \code{n} has to be a power of two
-#' @param wf type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of filter names
-#' @param J number of resolutions to employ in the wavelet decomposition
+#' @param Z image of size \code{n1} by \code{2n} where \code{n1,n2} have to be powers of two
+#' @param wf type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of wavelet names
+#' @param J number of resolutions to employ in wavelet decomposition
 #' @param alpha significance level at which tests are carried out
 #' @param n.hyp number of hypotheses tests to carry out with EFDR. If a vector is supplied, the optimal one from 
-#' the set of proposed number of tests is chosen.
+#' the set of proposed number of tests is chosen
 #' @param b the number of neighbours to consider in EFDR
 #' @param iteration number of Monte Carlo iterations to employ when determining which of the proposed number of tests 
 #' in \code{n.hyp} is the optimal number of tests
-#' @param parallel number of cores to use with parallel backend. Needs to be an integer less than the number of available cores.
+#' @param parallel number of cores to use with parallel backend. Needs to be an integer less than or equal to the number of available cores
 #' @return List with three fields:
 #' \describe{
-#'  \item{\code{filtered}}{the discrete wavelet transform containing the anomalous wavelet coefficients in the signal.}
-#'  \item{\code{Z}}{the discrete wavelet transform containing the anomalous wavelet coefficients in the signal.}
-#'  \item{\code{reject_coeff}}{indices of wavelets under which the null hypothesis of no anomaly was rejected.}
+#'  \item{\code{filtered}}{the discrete wavelet transform containing the anomalous wavelet coefficients in the signal}
+#'  \item{\code{Z}}{the image containing the anomalous wavelets in the signal}
+#'  \item{\code{reject_coeff}}{indices of wavelets under which the null hypothesis of no anomaly was rejected}
 #'  \item{\code{pvalue_ordered}}{ordered p-values under the null hypothesis. The column names indicate the 
-#'                wavelet to which the p-value pertains}
+#'                wavelet to which the p-value belongs}
 #'  \item{\code{nhat}}{the number of tests carried out.}
 #' }
 #' @export
@@ -204,8 +204,8 @@ test.los <- function(Z,wf="la8",J=3,alpha=0.05)
 #' 
 #' @description This function generates an image for test purposes. The image is that of a filled circle
 #' at the centre.
-#' @param h the amplitude of the filled circle
-#' @param r the radius of the circle (in pixesl)
+#' @param h amplitude of the filled circle
+#' @param r radius of the circle (in pixels)
 #' @param n1 image height in pixels
 #' @param n2 image width in pixels
 #' @return List with two elements
@@ -249,8 +249,8 @@ test_image <- function(h=1,r=10,n1 = 64, n2=64)   {
 #' wavelet domain. Given an image, the discrete wavelet transform is found. 
 #' The indices of the coefficients which exceed a certain threshold are then
 #' considered the 'signal' for testing purposes.
-#' @param Z image of size \code{n} by \code{n} where \code{n} has to be a power of two
-#' @param wf type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of filter names
+#' @param Z image of size \code{n1} by \code{n2} where \code{n1,n2} have to be powers of two
+#' @param wf type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of wavelet names
 #' @param J number of resolutions to employ in the wavelet decomposition
 #' @param th threshold
 #' @return Indices of wavelet coefficients in a vector
@@ -278,10 +278,10 @@ wav_th <- function(Z, wf = "la8", J = 3, th = 1) {
 #' is the number of neighbours per wavelet. Two wavelets are deemed
 #' to be neighbours according to the metric of Shen, Huang and Cressie (2002). The distance metric is a function of  the
 #' spatial separation, the resolution and the orientation.
-#' @param Z image of size \code{n} by \code{n} where \code{n} has to be a power of two
-#' @param wf type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of filter names
+#' @param Z image of size \code{n1} by \code{n2} where both \code{n1,n2} have to be powers of two
+#' @param wf type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of wavelet names
 #' @param J number of resolutions to employ in the wavelet decomposition
-#' @param b the number of neighbours to consider in EFDR#' 
+#' @param b number of neighbours to consider in EFDR 
 #' @param parallel number of cores to use with parallel backend. Needs to be an integer less than the number of available cores.
 #' @return matrix of size \code{N} by \code{b}
 #' @keywords wavelets, neighbourhood
@@ -331,7 +331,7 @@ nei.efdr <- function(Z,wf="la8",J=3,b=11,parallel=1L) {
 #' @param df data frame with fields \code{x}, \code{y} and \code{z}
 #' @return matrix image
 #' @details This function requires that \emph{all} pixels in the image are defined, that is \code{df$x} and \code{df$y} must be the 
-#' column outputs of the function expand.grid(x0,y0) where \code{x0, y0} are axes values. Note that \code{x0} and 
+#' column outputs of the function \code{expand.grid(x0,y0)} where \code{x0, y0} are axes values. Note that \code{x0} and 
 #' \code{y0} do not need to be regularly spaced.
 #' @keywords reshape, image
 #' @export
@@ -373,12 +373,12 @@ df.to.mat <- function(df) {
 #' @param n1 image length in pixels
 #' @param n2 image height in pixels
 #' @param method method to be used, see details
-#' @param idp the inverse distance power
+#' @param idp inverse distance power
 #' @param nmax when using inverse distance weighting, the number of nearest neighbours to consider when interpolating using idw. 
 #' When using conditional simulation, the number of nearest observations to used for a kriging simulation
 #' @param model the model type when using conditional simulation (use \code{gstat::vgm()} to list all
 #' possible models)
-#' @return data frame with \code{x,y} as gridded values
+#' @return data frame with fields \code{x,y,z}
 #' @details There are three supported methods for regridding. The first, "idw" is 
 #' the inverse distance weighting method. The function overlays a grid over the data. 
 #' The cells are constructed evenly within the bounding 
@@ -488,8 +488,8 @@ regrid <- function(df,n1 = 128, n2 = n1, method="idw", idp = 0.5, nmax = 7,model
 #' 
 #' @description Returns the power of the multiple hypothesis test, by finding
 #' the proportion of the correctly rejected null hypotheses.
-#' @param reject.true the indices of the true alternative hypotheses
-#' @param reject the indices of rejected null hypotheses
+#' @param reject.true indices of the true alternative hypotheses
+#' @param reject indices of the rejected null hypotheses
 #' @return Single value (proportion)
 #' @export
 #' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
@@ -517,8 +517,8 @@ fdrpower <- function(reject.true,reject) {
 #' @description Returns the a 2x2 table resulting from diagnostic evaluation. 
 #' The cells contain the number of true negatives, true positives, false negatives 
 #' and false positives.
-#' @param reject.true the indices of the true alternative hypotheses
-#' @param reject the indices of rejected null hypotheses
+#' @param reject.true indices of the true alternative hypotheses
+#' @param reject indices of the rejected null hypotheses
 #' @param n total number of tests
 #' @return 2x2 matrix
 #' @export

@@ -66,7 +66,7 @@ n.hyp =     c(5,10,20,30,40,60,80,100,400,800,1200,2400,4096)  # find optimal nu
 iteration = 100         # number of iterations in MC run when finding optimal n in n.hyp
 idp =       0.5         # inverse distance weighting power
 nmax =      15          # maximum number of points to consider when carrying out inverse distance interpolation
-parallel =  2L          # use two cores
+parallel =  2L          # use four cores
 set.seed(20)            # same random seed for reproducibility
 ```
 
@@ -100,7 +100,7 @@ cat(paste0("Power of Bonferroni test: ",fdrpower(sig,m1$reject_coeff)),
     paste0("Power of EFDR test: ",fdrpower(sig,m4$reject_coeff)),sep="\n")
 ```
 
-Another tool delivered with the package is a diagnostic table containing the number of false positives, false negatives, true negatives and true positives. Diagnostic measures such as the false discovery rate, false non-discovery rate, specificity and sensitivity can be computed from this table:
+Another tool delivered with the package is a diagnostic table containing the number of false positives, false negatives, true negatives and true positives. 
 
 ```{r}
 ### Bonferroni diagnostic table:
@@ -113,10 +113,28 @@ diagnostic.table(sig,m3$reject_coeff,n = n^2)
 diagnostic.table(sig,m4$reject_coeff,n = n^2)
 ```
 
-The above example considered a relatively 'clean' image. The real power of EFDR becomes apparent when analysing very noisy images, where the signal is not even visible from a casual inspection and hence having a powerful testing procedure becomes important. In the following we take the same signal, but this time add on a considerable amount of noise before running the aforementioned tests.
+Several useful diagnostic measures can be computed from this table. In particular, define
+
+* $A_{TN}$: Number of true negatives
+* $A_{FP}$: Number of false positives
+* $A_{FN}$: Number of false negatives
+* $A_{TP}$: Number of true positives
+
+Then, the false discovery rate ($FDR$), false nondiscovery rate ($FNR$), specificity ($Sp$) and sensitivity ($Se$) can be computed as
+
+$$
+\begin{align}
+  FDR &= A_{FP}/(A_{FP} + A_{TP}) \\
+  FNR &= A_{FN}/(A_{TN} + A_{FN}) \\
+  Sp &= A_{TN}/(A_{TN} + A_{FP}) \\
+  Se &= A_{TP}/(A_{FN} + A_{TP}) 
+\end{align}
+$$
+
+This example considered a relatively 'clean' image. The real power of EFDR becomes apparent when analysing very noisy images, where the signal is not even visible from a casual inspection and hence having a powerful testing procedure becomes important. In the following we take the same signal, but this time add on a considerable amount of noise before running the aforementioned tests.
 
 
-```{r,fig.width=4.25, fig.height=4,cache=FALSE}
+```{r,fig.width=4.25, fig.height=4,cache=TRUE}
 set.seed(1) # for reproducibility
 Z <- test_image(n1=n)$z
 Z_noisy <- Z + 2*rnorm(n^2)
@@ -152,7 +170,7 @@ In this example we implement all the above tests on data from the Atmospheric In
 As a simple case study, we take CO2 data from the first three days in these data (01 - 03 May 2003) and compare these to data in the second three days (4 - 6 May 2003) in the conterminus United States and Canada. The change in CO2 in  these periods is an indication of regional fluxes and we are interested in where the flux is significantly different from zero. This satellite data is irregular in space; it therefore needs to be first regridded and interpolated onto an image of appropriate size.
 
 First, load the dataset using RCurl:
-```{r,message=FALSE,cache=FALSE}
+```{r,message=FALSE,cache=TRUE}
 library(RCurl)
 airs.raw <- read.table(textConnection(getURL(
                 "http://hpc.niasra.uow.edu.au/ckan/dataset/6ddf61bb-2f9a-424a-8775-e23ebaa55afb/resource/e1206e1c-9dca-42b6-8455-3cdd98c6a943/download/airs2003may116.csv"
@@ -162,7 +180,7 @@ airs.raw <- read.table(textConnection(getURL(
 
 Now we will concentrate on North America, and change the variable names into the appropriate x-y-z notation required to regrid the data. For this we use some handy functions from the `dplyr` package.
 
-```{r,message=FALSE,cache=FALSE}
+```{r,message=FALSE,cache=TRUE}
 library(dplyr)
 airs.raw <- airs.raw %>%
   subset(lat > 14 & lat < 66 & lon > -145 & lon < -52) %>%
@@ -215,7 +233,7 @@ ggplot() +
 
 We are interested in changes in CO2 levels. Below we produce an image of CO2 fluxes by repeating the regridding on the AIRS CO2 data from 4--6 May 2003 and then finding the difference between the two images
 
-```{r,cache=FALSE}
+```{r,cache=TRUE}
 airs.interp2 <- airs.raw %>%
   subset(day %in% 4:6) %>%
   select(-day) %>%
@@ -237,7 +255,7 @@ ggplot() +
 
 We now convert the data frame to an image matrix (using the package function `df.to.mat`) and then carry out the wavelet-domain tests, including EFDR.
 
-```{r,cache=FALSE}
+```{r,cache=TRUE}
 Z <- df.to.mat(airs.interp)
 m1 <- test.bonferroni(Z, wf=wf,J=J, alpha = alpha)
 m2 <- test.fdr(Z, wf=wf,J=J, alpha = alpha)
