@@ -17,7 +17,7 @@ Given a data frame with fields \code{x, y} and \code{z}, \code{df.to.mat} uses t
 }
 \details{
 This function requires that \emph{all} pixels in the image are defined, that is \code{df$x} and \code{df$y} must be the
-column outputs of the function expand.grid(x0,y0) where \code{x0, y0} are axes values. Note that \code{x0} and
+column outputs of the function \code{expand.grid(x0,y0)} where \code{x0, y0} are axes values. Note that \code{x0} and
 \code{y0} do not need to be regularly spaced.
 }
 \examples{

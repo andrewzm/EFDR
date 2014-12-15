@@ -17,32 +17,32 @@ test.bonferroni(Z, wf = "la8", J = 3, alpha = 0.05)
 test.los(Z, wf = "la8", J = 3, alpha = 0.05)
 }
 \arguments{
-\item{Z}{image of size \code{n} by \code{n} where \code{n} has to be a power of two}
+\item{Z}{image of size \code{n1} by \code{2n} where \code{n1,n2} have to be powers of two}
 
-\item{wf}{type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of filter names}
+\item{wf}{type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of wavelet names}
 
-\item{J}{number of resolutions to employ in the wavelet decomposition}
+\item{J}{number of resolutions to employ in wavelet decomposition}
 
 \item{alpha}{significance level at which tests are carried out}
 
 \item{n.hyp}{number of hypotheses tests to carry out with EFDR. If a vector is supplied, the optimal one from
-the set of proposed number of tests is chosen.}
+the set of proposed number of tests is chosen}
 
 \item{b}{the number of neighbours to consider in EFDR}
 
 \item{iteration}{number of Monte Carlo iterations to employ when determining which of the proposed number of tests
 in \code{n.hyp} is the optimal number of tests}
 
-\item{parallel}{number of cores to use with parallel backend. Needs to be an integer less than the number of available cores.}
+\item{parallel}{number of cores to use with parallel backend. Needs to be an integer less than or equal to the number of available cores}
 }
 \value{
 List with three fields:
 \describe{
- \item{\code{filtered}}{the discrete wavelet transform containing the anomalous wavelet coefficients in the signal.}
- \item{\code{Z}}{the discrete wavelet transform containing the anomalous wavelet coefficients in the signal.}
- \item{\code{reject_coeff}}{indices of wavelets under which the null hypothesis of no anomaly was rejected.}
+ \item{\code{filtered}}{the discrete wavelet transform containing the anomalous wavelet coefficients in the signal}
+ \item{\code{Z}}{the image containing the anomalous wavelets in the signal}
+ \item{\code{reject_coeff}}{indices of wavelets under which the null hypothesis of no anomaly was rejected}
  \item{\code{pvalue_ordered}}{ordered p-values under the null hypothesis. The column names indicate the
-               wavelet to which the p-value pertains}
+               wavelet to which the p-value belongs}
  \item{\code{nhat}}{the number of tests carried out.}
 }
 }

@@ -6,13 +6,13 @@
 nei.efdr(Z, wf = "la8", J = 3, b = 11, parallel = 1L)
 }
 \arguments{
-\item{Z}{image of size \code{n} by \code{n} where \code{n} has to be a power of two}
+\item{Z}{image of size \code{n1} by \code{n2} where both \code{n1,n2} have to be powers of two}
 
-\item{wf}{type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of filter names}
+\item{wf}{type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of wavelet names}
 
 \item{J}{number of resolutions to employ in the wavelet decomposition}
 
-\item{b}{the number of neighbours to consider in EFDR#'}
+\item{b}{number of neighbours to consider in EFDR}
 
 \item{parallel}{number of cores to use with parallel backend. Needs to be an integer less than the number of available cores.}
 }

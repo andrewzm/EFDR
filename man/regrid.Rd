@@ -15,7 +15,7 @@ regrid(df, n1 = 128, n2 = n1, method = "idw", idp = 0.5, nmax = 7,
 
 \item{method}{method to be used, see details}
 
-\item{idp}{the inverse distance power}
+\item{idp}{inverse distance power}
 
 \item{nmax}{when using inverse distance weighting, the number of nearest neighbours to consider when interpolating using idw.
 When using conditional simulation, the number of nearest observations to used for a kriging simulation}
@@ -24,7 +24,7 @@ When using conditional simulation, the number of nearest observations to used fo
 possible models)}
 }
 \value{
-data frame with \code{x,y} as gridded values
+data frame with fields \code{x,y,z}
 }
 \description{
 Given a data frame with fields \code{x, y} and \code{z}, \code{regrid} returns a data frame with

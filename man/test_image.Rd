@@ -6,9 +6,9 @@
 test_image(h = 1, r = 10, n1 = 64, n2 = 64)
 }
 \arguments{
-\item{h}{the amplitude of the filled circle}
+\item{h}{amplitude of the filled circle}
 
-\item{r}{the radius of the circle (in pixesl)}
+\item{r}{radius of the circle (in pixels)}
 
 \item{n1}{image height in pixels}
 
