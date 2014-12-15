@@ -3,7 +3,8 @@
 \alias{regrid}
 \title{Regrid ir/regular data}
 \usage{
-regrid(df, n1 = 128, n2 = n1, method = "idw", idp = 0.5, nmax = 7)
+regrid(df, n1 = 128, n2 = n1, method = "idw", idp = 0.5, nmax = 7,
+  model = "Exp")
 }
 \arguments{
 \item{df}{data frame with fields \code{x}, \code{y} and \code{z}}
@@ -16,7 +17,11 @@ regrid(df, n1 = 128, n2 = n1, method = "idw", idp = 0.5, nmax = 7)
 
 \item{idp}{the inverse distance power}
 
-\item{nmax}{the number of nearest neighbours to consider when interpolating}
+\item{nmax}{when using inverse distance weighting, the number of nearest neighbours to consider when interpolating using idw.
+When using conditional simulation, the number of nearest observations to used for a kriging simulation}
+
+\item{model}{the model type when using conditional simulation (use \code{gstat::vgm()} to list all
+possible models)}
 }
 \value{
 data frame with \code{x,y} as gridded values
@@ -27,7 +32,7 @@ fields \code{x, y} and \code{z}, this time with \code{x, y} arranged on a regula
 \code{n1}.
 }
 \details{
-There are two supported methods for regridding. The first, "idw" is
+There are three supported methods for regridding. The first, "idw" is
 the inverse distance weighting method. The function overlays a grid over the data.
 The cells are constructed evenly within the bounding
 box of the data and filled with interpolated values using the inverse weighting distance metric
@@ -35,7 +40,13 @@ with power \code{idp}. \code{nmax} determines the maximum number of neighbours w
 With this method, interpolation uses the inverse distance weight function \code{gstat} in the \code{gstat} package.
 Refer to the package \code{gstat} for more details and formulae.
 
-The second method "median_polishing" applies a median polish to the data. First, a grid is overlayed. If more than one
+The second method "cond_sim" uses conditional simulation to generate a realisation of
+the unobserved process at the grid points. This is a model-based approach, and the
+variogram model may be selected through the parameter \code{model}. The exponential
+variogram is used by default. For a complete list of possible models use \code{gstat::vgm()}.
+For a tutorial on how the conditional simulation is carried out see the \code{gstat} vignette.
+
+The third method "median_polishing" applies a median polish to the data. First, a grid is overlayed. If more than one
 data point is present in each grid box, the mean of the data is taken. Where there is no data, the grid box is assigned
 a value of NA. This gridded image is then passed to the function \code{medpolish} which carried out Tukey's median
 polish procedure to obtain an interpolant of the form \eqn{z(s) = \mu + a(s1) + b(s2)} where \eqn{s1} is the x-axis and

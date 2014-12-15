@@ -374,9 +374,12 @@ df.to.mat <- function(df) {
 #' @param n2 image height in pixels
 #' @param method method to be used, see details
 #' @param idp the inverse distance power
-#' @param nmax the number of nearest neighbours to consider when interpolating
+#' @param nmax when using inverse distance weighting, the number of nearest neighbours to consider when interpolating using idw. 
+#' When using conditional simulation, the number of nearest observations to used for a kriging simulation
+#' @param model the model type when using conditional simulation (use \code{gstat::vgm()} to list all
+#' possible models)
 #' @return data frame with \code{x,y} as gridded values
-#' @details There are two supported methods for regridding. The first, "idw" is 
+#' @details There are three supported methods for regridding. The first, "idw" is 
 #' the inverse distance weighting method. The function overlays a grid over the data. 
 #' The cells are constructed evenly within the bounding 
 #' box of the data and filled with interpolated values using the inverse weighting distance metric 
@@ -384,7 +387,13 @@ df.to.mat <- function(df) {
 #' With this method, interpolation uses the inverse distance weight function \code{gstat} in the \code{gstat} package.
 #' Refer to the package \code{gstat} for more details and formulae.
 #' 
-#' The second method "median_polishing" applies a median polish to the data. First, a grid is overlayed. If more than one
+#' The second method "cond_sim" uses conditional simulation to generate a realisation of 
+#' the unobserved process at the grid points. This is a model-based approach, and the 
+#' variogram model may be selected through the parameter \code{model}. The exponential
+#' variogram is used by default. For a complete list of possible models use \code{gstat::vgm()}.   
+#' For a tutorial on how the conditional simulation is carried out see the \code{gstat} vignette. 
+#' 
+#' The third method "median_polishing" applies a median polish to the data. First, a grid is overlayed. If more than one
 #' data point is present in each grid box, the mean of the data is taken. Where there is no data, the grid box is assigned
 #' a value of NA. This gridded image is then passed to the function \code{medpolish} which carried out Tukey's median
 #' polish procedure to obtain an interpolant of the form \eqn{z(s) = \mu + a(s1) + b(s2)} where \eqn{s1} is the x-axis and
@@ -395,7 +404,7 @@ df.to.mat <- function(df) {
 #' @examples
 #' df <- data.frame(x = runif(200),y = runif(200),z=rnorm(200))
 #' df.gridded <- regrid(df, n1=10)
-regrid <- function(df,n1 = 128, n2 = n1, method="idw", idp = 0.5, nmax = 7) {
+regrid <- function(df,n1 = 128, n2 = n1, method="idw", idp = 0.5, nmax = 7,model="Exp") {
   
   stopifnot(is.data.frame(df))
   stopifnot("x" %in% names(df))
@@ -409,10 +418,11 @@ regrid <- function(df,n1 = 128, n2 = n1, method="idw", idp = 0.5, nmax = 7) {
   stopifnot(idp > 0)
   stopifnot(is.numeric(nmax))
   stopifnot((nmax %% 1 == 0)  & nmax > 0 )
-  stopifnot(method %in% c("idw","median_polish"))
+  stopifnot(method %in% c("idw","median_polish","cond_sim"))
+  stopifnot(model %in% vgm()$short)
   
-  xlim=c(min(df$x),max(df$x))
-  ylim=c(min(df$y),max(df$y))
+  xlim=range(df$x)
+  ylim=range(df$y)
   
   x0 <- seq(xlim[1],xlim[2],,n1+1)
   y0 <- seq(ylim[1],ylim[2],,n2+1)
@@ -425,12 +435,25 @@ regrid <- function(df,n1 = 128, n2 = n1, method="idw", idp = 0.5, nmax = 7) {
   
   if(method == "idw") {  
     
-    gstat(id = "z", formula = z ~ 1, locations = ~ x + y,
+    df.regrid <-
+      gstat(id = "z", formula = z ~ 1, locations = ~ x + y,
           data = df, nmax = nmax, set = list(idp = idp)) %>%
       predict(df.regrid) %>%
       mutate(z = z.pred) %>%
       select(x,y,z)
-  } else {
+  } else if(method == "cond_sim") {
+    df.spat <- df
+    coordinates(df.spat) = ~x+y
+    
+    df.regrid.spat <- df.regrid
+    coordinates(df.regrid.spat) = ~x+y
+    
+    start_range <- max(diff(range(df$y)),diff(range(df$x)))/3
+    image.vgm = variogram(z~1, data=df.spat)
+    fit = fit.variogram(image.vgm, model = vgm(var(df$z),"Exp",start_range,var(df$z)/10))
+    df.regrid$z = krige(z~1, df.spat, df.regrid.spat, 
+                        model = fit,nmax = nmax, nsim = 1)$sim1
+  } else if(method == "median_polish") {
     x02 <- seq(xlim[1] - diff(xlim)/n1/2,xlim[2] + diff(xlim)/n1/2,,n1+1)
     y02 <- seq(ylim[1] - diff(ylim)/n1/2,ylim[2] + diff(ylim)/n2/2,,n2+1)
     
@@ -456,10 +479,8 @@ regrid <- function(df,n1 = 128, n2 = n1, method="idw", idp = 0.5, nmax = 7) {
     df.regrid$z <- c(med_Z$overall + 
                 outer(med_Z$row,med_Z$col, "+") + 
                 med_Z$residuals)
-    df.regrid
-
   }
-  
+  df.regrid
 }
 
 
