@@ -6,8 +6,8 @@
 #' @import parallel
 #' @import dplyr
 #' @import foreach
+#' @import gstat
 #' @importFrom tidyr spread
 #' @importFrom doParallel registerDoParallel
-#' @importFrom gstat gstat
 #' @name EFDR
 NULL
