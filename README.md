@@ -36,12 +36,19 @@ Package details
 ---------------
 
 Package: EFDR
+
 Type: Package
+
 Title: Enhanced False Discovery Rate in the wavelet domain
+
 Version: 1.0
+
 Date: 2014-10-22
+
 Author: Andrew Zammit-Mangion and Hsin-Cheng Huang
+
 Maintainer: Andrew Zammit-Mangion <andrewzm@gmail.com>
+
 Suggests:
     knitr,
     ggplot2,
@@ -49,6 +56,7 @@ Suggests:
     fields,
     gridExtra,
     animation
+
 Description: Enhanced False Discovery Rate (EFDR) is a tool to detect anomalies
     in an image. The image is first transformed into the wavelet domain, the
     coefficients at each resolution are standardised, and standard statistical
@@ -61,6 +69,7 @@ Description: Enhanced False Discovery Rate (EFDR) is a tool to detect anomalies
     Huang, and Noel Cressie. 'Nonparametric hypothesis testing for a spatial
     signal.' Journal of the American Statistical Association 97.460 (2002):
     1122-1140.
+
 Imports:
     Matrix,
     foreach,
@@ -69,6 +78,9 @@ Imports:
     gstat,
     tidyr,
     dplyr
+
 VignetteBuilder: knitr
+
 License: GPL (>= 2)
+
 NeedsCompilation: yes
