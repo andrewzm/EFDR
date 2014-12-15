@@ -74,7 +74,8 @@ X <- foreach (t = unique(sst$time),.combine=rbind) %dopar% {
   library(EFDR)
   sst_t <- subset(sst,time==t)
   sst_t_regrid <- regrid(sst_t,n1=n1,n2=n2,idp= idp,nmax = nmax)
-  sst_t_regrid$zsig <- c(test.efdr(df.to.mat(sst_t_regrid), wf=wf,J=J, alpha = alpha,parallel=parallel)$Z)
+  sst_t_regrid$zsig <- c(test.efdr(df.to.mat(sst_t_regrid), wf=wf,J=J, 
+                                   alpha = alpha,parallel=parallel)$Z)
   sst_t_regrid$t <- t
   sst_t_regrid
 }
@@ -101,7 +102,8 @@ base_plot <- ggplot() +
              panel.border  = element_rect(fill=NA, colour='black')) + 
 		geom_path(data=world,aes(x=long,y=lat,group=group)) +
 		geom_rect(data=data.frame(x1=155,x2=280,y1=14,y2=-29),
-			mapping=aes(xmin=x1,xmax=x2,ymin=y1,ymax=y2),alpha=0,colour="black",linetype="dashed")
+			mapping=aes(xmin=x1,xmax=x2,ymin=y1,ymax=y2),
+      alpha=0,colour="black",linetype="dashed")
 
 mon <- c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
 plot_time <- function(i) {
