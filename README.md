@@ -10,7 +10,7 @@ This package will soon be available on CRAN but until then, to install you will 
 Examples
 --------
 
-For a tutorial on how to use this package, please click [here](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/vignettes/EFDR.html). For a case study on the detection of the El Niño and El Niña phenomena, please click [here](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/vignettes/EFDR_SST.html).
+For a tutorial on how to use this package, please click [here](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/vignettes2/EFDR.html). For a case study on the detection of the El Niño and El Niña phenomena, please click [here](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/vignettes2/EFDR_SST.html).
 
 Installation
 ------------
