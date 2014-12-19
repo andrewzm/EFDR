@@ -14,7 +14,7 @@ nei.efdr(Z, wf = "la8", J = 3, b = 11, parallel = 1L)
 
 \item{b}{number of neighbours to consider in EFDR}
 
-\item{parallel}{number of cores to use with parallel backend; needs to be an integer less than the number of available cores.}
+\item{parallel}{number of cores to use with parallel backend; needs to be an integer less than the number of available cores}
 }
 \value{
 matrix of size \code{N} by \code{b}

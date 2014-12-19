@@ -31,7 +31,8 @@ Imports:
     parallel,
     gstat,
     tidyr,
-    dplyr
+    dplyr,
+    sp
 URL: http://github.com/andrewzm/EFDR
 Depends:
     R (>= 3.0)

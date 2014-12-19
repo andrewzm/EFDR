@@ -13,4 +13,5 @@ Enhanced False Discovery Rate (EFDR) vignettes
   **04-Dec-2014**
   
   We provide two vignettes with the package. Since these are relatively computationally intensive, we host them on our development page so as not to bog down CRAN servers during vignette building. The first vignette which demonstrates the functionality of EFDR in tutorial fashion can be found [here](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/vignettes2/EFDR.html). The second vignette demonstrating the use of EFDR on sea-surface temperature anomalies can be found [here](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/vignettes2/EFDR_SST.html). For raw Markdown versions of the vignettes please visit the [development page](http://github.com/andrewzm/EFDR).
+
   

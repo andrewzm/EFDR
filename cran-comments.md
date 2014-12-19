@@ -4,12 +4,10 @@
 * win-builder (release)
 
 ## R CMD check results
-There were no ERRORs or WARNINGs. 
-
-There was 1 NOTE:
-
-* checking dependencies in R code ... NOTE
-
+There were no ERRORs, WARNINGs or NOTEs. 
 
 ## Downstream dependencies
 There are no downstream dependencies
+
+## Vignettes
+Since vignettes are computationally intensive, these have been placed online and referred to in a minimal package vignette

@@ -29,10 +29,7 @@
 #' @export
 #' @references Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 #' @examples
-#' Z <- test_image(h = 0.5, r = 14, n1 = 64)$z
-#' Z <- Z + rnorm(64^2)*0.2
-#' m1 <- test.bonferroni(Z, wf="la8",J=3, alpha = 0.05)
-#' m2 <- test.efdr(Z, wf="la8",J=3, alpha = 0.05,n.hyp=c(20,40,60,100,120,200,500,1000))
+#' ## See vignettes by typing vignette("EFDR_vignettes")
 test.efdr <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,iteration = 200, parallel = 1L)
 {
   
@@ -282,7 +279,7 @@ wav_th <- function(Z, wf = "la8", J = 3, th = 1) {
 #' @param wf type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of wavelet names
 #' @param J number of resolutions to employ in the wavelet decomposition
 #' @param b number of neighbours to consider in EFDR 
-#' @param parallel number of cores to use with parallel backend; needs to be an integer less than the number of available cores.
+#' @param parallel number of cores to use with parallel backend; needs to be an integer less than the number of available cores
 #' @return matrix of size \code{N} by \code{b}
 #' @keywords wavelets, neighbourhood
 #' @export
@@ -295,7 +292,9 @@ nei.efdr <- function(Z,wf="la8",J=3,b=11,parallel=1L) {
   .check_args(Z=Z,wf=wf,J=J,b=b,parallel=parallel)
   dwt.z <- dwt.2d(x=Z,wf=wf,J=J)  
   layers <- .flat.pack(dwt.z,b=b)
-    
+  
+  i <- s1 <-s2 <- j <- NULL # Suppress CRAN NOTEs
+  
   if(parallel > 1L) {
     #registerDoMC(detectCores())
     cl <- makeCluster(parallel)
@@ -346,6 +345,9 @@ df.to.mat <- function(df) {
   stopifnot("x" %in% names(df))
   stopifnot("y" %in% names(df))
   stopifnot("z" %in% names(df))
+  
+  x <- y <- z <- NULL # Suppress CRAN notes
+  
   if(!(length(unique(df$x)) * length(unique(df$y)) == nrow(df))) 
     stop("Data frame needs to be in long format x-y-z with x and y being the output of expand.grid(x0,y0),
          where x0 and y0 are the x and y grid points")
@@ -420,6 +422,8 @@ regrid <- function(df,n1 = 128, n2 = n1, method="idw", idp = 0.5, nmax = 7,model
   stopifnot((nmax %% 1 == 0)  & nmax > 0 )
   stopifnot(method %in% c("idw","median_polish","cond_sim"))
   stopifnot(model %in% vgm()$short)
+  
+  x <- y <- z <- box_x <- box_y <- z.pred <- NULL # Suppress CRAN NOTEs
   
   xlim=range(df$x)
   ylim=range(df$y)
@@ -522,7 +526,7 @@ fdrpower <- function(reject.true,reject) {
 #' @param n total number of tests
 #' @return 2x2 matrix
 #' @export
-#' @references Noel Cressie and Sandy Burden (2015). "Evaluation of diagnostics for hierarchical spatial statistical models" Contribution to K. V. Mardia Festschrift, Wiley, Chichester, forthcoming.
+#' @references Noel Cressie and Sandy Burden (2015). "Evaluation of diagnostics for hierarchical spatial statistical models." Contribution to K. V. Mardia Festschrift, Wiley, Chichester, forthcoming.
 #' @examples
 #' set.seed(1)
 #' wf = "la8"

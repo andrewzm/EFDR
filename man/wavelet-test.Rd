@@ -51,10 +51,7 @@ Test for anomalies using either \code{bonferroni}, \code{FDR}, \code{EFDR} or \c
 wavelet domain.
 }
 \examples{
-Z <- test_image(h = 0.5, r = 14, n1 = 64)$z
-Z <- Z + rnorm(64^2)*0.2
-m1 <- test.bonferroni(Z, wf="la8",J=3, alpha = 0.05)
-m2 <- test.efdr(Z, wf="la8",J=3, alpha = 0.05,n.hyp=c(20,40,60,100,120,200,500,1000))
+## See vignettes by typing vignette("EFDR_vignettes")
 }
 \references{
 Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
