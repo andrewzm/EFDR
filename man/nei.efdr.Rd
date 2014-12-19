@@ -14,7 +14,7 @@ nei.efdr(Z, wf = "la8", J = 3, b = 11, parallel = 1L)
 
 \item{b}{number of neighbours to consider in EFDR}
 
-\item{parallel}{number of cores to use with parallel backend. Needs to be an integer less than the number of available cores.}
+\item{parallel}{number of cores to use with parallel backend; needs to be an integer less than the number of available cores.}
 }
 \value{
 matrix of size \code{N} by \code{b}
@@ -30,7 +30,7 @@ spatial separation, the resolution and the orientation.
 image <- matrix(rnorm(64),8,8)
 }
 \references{
-Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 }
 \keyword{neighbourhood}
 \keyword{wavelets,}

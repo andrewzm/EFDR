@@ -16,7 +16,7 @@
 #' @param b the number of neighbours to consider in EFDR
 #' @param iteration number of Monte Carlo iterations to employ when determining which of the proposed number of tests 
 #' in \code{n.hyp} is the optimal number of tests
-#' @param parallel number of cores to use with parallel backend. Needs to be an integer less than or equal to the number of available cores
+#' @param parallel number of cores to use with parallel backend; needs to be an integer less than or equal to the number of available cores
 #' @return List with three fields:
 #' \describe{
 #'  \item{\code{filtered}}{the discrete wavelet transform containing the anomalous wavelet coefficients in the signal}
@@ -27,7 +27,7 @@
 #'  \item{\code{nhat}}{the number of tests carried out.}
 #' }
 #' @export
-#' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+#' @references Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 #' @examples
 #' Z <- test_image(h = 0.5, r = 14, n1 = 64)$z
 #' Z <- Z + rnorm(64^2)*0.2
@@ -215,7 +215,7 @@ test.los <- function(Z,wf="la8",J=3,alpha=0.05)
 #' }
 #' @keywords test image, EFDR
 #' @export
-#' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+#' @references Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 #' @examples
 #' Z <- test_image()$z
 test_image <- function(h=1,r=10,n1 = 64, n2=64)   {
@@ -255,7 +255,7 @@ test_image <- function(h=1,r=10,n1 = 64, n2=64)   {
 #' @param th threshold
 #' @return Indices of wavelet coefficients in a vector
 #' @export
-#' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+#' @references Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 #' @examples
 #' Z <- test_image(h = 0.5, r = 14, n1 = 64)$z
 #' print(wav_th(Z,wf="la8",J=3,th=0.5))
@@ -282,11 +282,11 @@ wav_th <- function(Z, wf = "la8", J = 3, th = 1) {
 #' @param wf type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of wavelet names
 #' @param J number of resolutions to employ in the wavelet decomposition
 #' @param b number of neighbours to consider in EFDR 
-#' @param parallel number of cores to use with parallel backend. Needs to be an integer less than the number of available cores.
+#' @param parallel number of cores to use with parallel backend; needs to be an integer less than the number of available cores.
 #' @return matrix of size \code{N} by \code{b}
 #' @keywords wavelets, neighbourhood
 #' @export
-#' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+#' @references Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 #' @examples
 #' image <- matrix(rnorm(64),8,8)
 #  nei <- nei.efdr(image,b=11)
@@ -379,8 +379,8 @@ df.to.mat <- function(df) {
 #' @param model the model type when using conditional simulation (use \code{gstat::vgm()} to list all
 #' possible models)
 #' @return data frame with fields \code{x,y,z}
-#' @details There are three supported methods for regridding. The first, "idw" is 
-#' the inverse distance weighting method. The function overlays a grid over the data. 
+#' @details There are three supported methods for regridding. The first, "idw", is 
+#' the inverse-distance-weighting method. The function overlays a grid over the data. 
 #' The cells are constructed evenly within the bounding 
 #' box of the data and filled with interpolated values using the inverse weighting distance metric 
 #' with power \code{idp}. \code{nmax} determines the maximum number of neighbours when using the distance weighting.
@@ -492,7 +492,7 @@ regrid <- function(df,n1 = 128, n2 = n1, method="idw", idp = 0.5, nmax = 7,model
 #' @param reject indices of the rejected null hypotheses
 #' @return Single value (proportion)
 #' @export
-#' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+#' @references Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 #' @examples
 #' set.seed(1)
 #' wf = "la8"
@@ -522,7 +522,7 @@ fdrpower <- function(reject.true,reject) {
 #' @param n total number of tests
 #' @return 2x2 matrix
 #' @export
-#' @references Noel Cressie and Sandy Burden (2014). "Evaluation of diagnostics for hierarchical spatial statistical models" Contribution fo Mardia Festschrift.
+#' @references Noel Cressie and Sandy Burden (2015). "Evaluation of diagnostics for hierarchical spatial statistical models" Contribution to K. V. Mardia Festschrift, Wiley, Chichester, forthcoming.
 #' @examples
 #' set.seed(1)
 #' wf = "la8"

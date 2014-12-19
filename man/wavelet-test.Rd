@@ -33,7 +33,7 @@ the set of proposed number of tests is chosen}
 \item{iteration}{number of Monte Carlo iterations to employ when determining which of the proposed number of tests
 in \code{n.hyp} is the optimal number of tests}
 
-\item{parallel}{number of cores to use with parallel backend. Needs to be an integer less than or equal to the number of available cores}
+\item{parallel}{number of cores to use with parallel backend; needs to be an integer less than or equal to the number of available cores}
 }
 \value{
 List with three fields:
@@ -57,6 +57,6 @@ m1 <- test.bonferroni(Z, wf="la8",J=3, alpha = 0.05)
 m2 <- test.efdr(Z, wf="la8",J=3, alpha = 0.05,n.hyp=c(20,40,60,100,120,200,500,1000))
 }
 \references{
-Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 }
 

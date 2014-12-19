@@ -68,7 +68,7 @@ iteration = 100         # number of iterations in MC run when finding optimal n 
 idp =       0.5         # inverse distance weighting power
 nmax =      15          # maximum number of points to consider when carrying out inverse 
                         # distance interpolation
-parallel =  8L          # use eight cores
+parallel =  parallel::detectCores()/2 # use half the number of available cores
 set.seed(20)            # same random seed for reproducibility
 ```
 

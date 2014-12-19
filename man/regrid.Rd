@@ -32,8 +32,8 @@ fields \code{x, y} and \code{z}, this time with \code{x, y} arranged on a regula
 \code{n1}.
 }
 \details{
-There are three supported methods for regridding. The first, "idw" is
-the inverse distance weighting method. The function overlays a grid over the data.
+There are three supported methods for regridding. The first, "idw", is
+the inverse-distance-weighting method. The function overlays a grid over the data.
 The cells are constructed evenly within the bounding
 box of the data and filled with interpolated values using the inverse weighting distance metric
 with power \code{idp}. \code{nmax} determines the maximum number of neighbours when using the distance weighting.
