@@ -5,8 +5,6 @@ Enhanced False Discovery Rate (EFDR) is a non-parameteric hypothesting testing p
 
 The package `EFDR` contains the required functions to carry out EFDR in a practical setting. It allows for the possibility of a parallel backend (since the computations are relatively intensive), contains basic interpolation methods to grid data which is spatially irregular, and also contains the more standard methods such as detection using the Bonferroni correction, the standard FDR and the Largest Order Statistic method. 
 
-This package will soon be available on CRAN but until then, to install you will need to have `devtools` installed and loaded. See the section *Installation* for more details. Please do not hesitate to contact me if you have any queries.
-
 Examples
 --------
 
@@ -15,7 +13,7 @@ For a tutorial on how to use this package, please click [here](http://htmlprevie
 Installation
 ------------
 
-- To install this package, first load `devtools`, then type `install_github('andrewzm/EFDR', dependencies=T, build_vignettes=F)`. Installation of most dependencies is straightforward. If you are on Linux, for the package `gstat` you will also need to install `libgeos-dev` which is widely available in linux repos. In Ubuntu this is available using `apt-get install libgeos-dev`.
+- Installation of most dependencies is straightforward. If you are on Linux, for the package `gstat` you will also need to install `libgeos-dev` which is widely available in linux repos. In Ubuntu this is available using `apt-get install libgeos-dev`.
 
 
 Open issues
