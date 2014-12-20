@@ -3,8 +3,6 @@ Type: Package
 Title: Enhanced False Discovery Rate in the Wavelet Domain
 Version: 1.0
 Date: 2014-10-22
-Author: Andrew Zammit-Mangion and Hsin-Cheng Huang
-Maintainer: Andrew Zammit-Mangion <andrewzm@gmail.com>
 Authors@R: c(person("Andrew", "Zammit-Mangion", role = c("aut", "cre"),
     email = "andrewzm@gmail.com"),
     person("Hsin-Cheng", "Huang", role = "aut"),

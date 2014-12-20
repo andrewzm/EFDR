@@ -55,7 +55,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <h1>Enhanced False Discovery Rate (EFDR): Detecting sea-surface temperature anomalies</h1>
 <p><strong>Andrew Zammit Mangion</strong></p>
 <p><strong>04-Dec-2014</strong></p>
-<p>In this second tutorial we will examine the use of EFDR for anomaly detection of sea-surface temperatures (SST) in the tropical Pacific ocean. Every few or more years, the sea-surface temperature in this area rises dramatically in a phenomenon known as <a href="http://en.wikipedia.org/wiki/El_Ni%C3%B1o">El Niño</a>. The reverse effect, SST cooling in this area, is named <a href="http://en.wikipedia.org/wiki/La_Ni%C3%B1a">La Niña</a>. Before going through this vignette, it is important you have covered the <a href="http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/vignettes/EFDR.html">first EFDR tutorial</a> which illustrates the basic concepts of EFDR and the <code>R</code> package we will be using here.</p>
+<p>In this second tutorial we will examine the use of EFDR for anomaly detection of sea-surface temperatures (SST) in the tropical Pacific ocean. Every few or more years, the sea-surface temperature in this area rises dramatically in a phenomenon known as <a href="http://en.wikipedia.org/wiki/El_Ni%C3%B1o">El Niño</a>. The reverse effect, SST cooling in this area, is named <a href="http://en.wikipedia.org/wiki/La_Ni%C3%B1a">La Niña</a>. Before going through this vignette, it is important you have covered the <a href="http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/docs/EFDR.html">first EFDR tutorial</a> which illustrates the basic concepts of EFDR and the <code>R</code> package we will be using here.</p>
 <div id="the-code" class="section level2">
 <h2>The Code</h2>
 <p>We will first load some packages which we will use throughout this example:</p>
@@ -81,7 +81,7 @@ code > span.er { color: #ff0000; font-weight: bold; }
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">time =</span> <span class="kw">as.numeric</span>(date)) %&gt;%
 <span class="st">  </span><span class="kw">select</span>(-date) %&gt;%
 <span class="st">  </span><span class="kw">subset</span>(x &gt;<span class="st"> </span><span class="dv">155</span> &amp;<span class="st"> </span>x &lt;<span class="st"> </span><span class="dv">280</span> &amp;<span class="st"> </span>y &lt;<span class="dv">14</span>&amp;land==<span class="dv">0</span>)</code></pre>
-<p>We are now ready to implement EFDR. First we declare the parameters (please refer to the <a href="http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/vignettes/EFDR.html">first EFDR tutorial</a> for a description of these):</p>
+<p>We are now ready to implement EFDR. First we declare the parameters (please refer to the <a href="http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/docs/EFDR.html">first EFDR tutorial</a> for a description of these):</p>
 <pre class="sourceCode r"><code class="sourceCode r">### Set parameters
 n1 =<span class="st">        </span><span class="dv">64</span>
 n2 =<span class="st">        </span><span class="dv">32</span>
