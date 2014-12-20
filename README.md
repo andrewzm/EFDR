@@ -10,7 +10,7 @@ This package will soon be available on CRAN but until then, to install you will 
 Examples
 --------
 
-For a tutorial on how to use this package, please click [here](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/vignettes2/EFDR.html). For a case study on the detection of the El Niño and El Niña phenomena, please click [here](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/vignettes2/EFDR_SST.html).
+For a tutorial on how to use this package, please click [here](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/docs/EFDR.html). For a case study on the detection of the El Niño and El Niña phenomena, please click [here](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/docs/EFDR_SST.html).
 
 Installation
 ------------
@@ -32,55 +32,3 @@ Pavlicová, Martina, Thomas J. Santner, and Noel Cressie. "Detecting signals in 
 
 Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 
-Package details
----------------
-
-Package: EFDR
-
-Type: Package
-
-Title: Enhanced False Discovery Rate in the wavelet domain
-
-Version: 1.0
-
-Date: 2014-10-22
-
-Author: Andrew Zammit-Mangion and Hsin-Cheng Huang
-
-Maintainer: Andrew Zammit-Mangion <andrewzm@gmail.com>
-
-Suggests:
-    knitr,
-    ggplot2,
-    RCurl,
-    fields,
-    gridExtra,
-    animation
-
-Description: Enhanced False Discovery Rate (EFDR) is a tool to detect anomalies
-    in an image. The image is first transformed into the wavelet domain, the
-    coefficients at each resolution are standardised, and standard statistical
-    tests (in a multiple hypothesis testing setting) are carried out to find
-    the anomalies. The power of EFDR exceeds that of standard FDR, which would
-    carry out tests on every wavelet coefficient: EFDR choose which wavelets to
-    test based on a criteria described in Shen et al. (2002). The package also
-    provides elementary tools to interpolate spatially irregular data onto a
-    grid of the required size. The work is based on Shen, Xiaotong, Hsin-Cheng
-    Huang, and Noel Cressie. 'Nonparametric hypothesis testing for a spatial
-    signal.' Journal of the American Statistical Association 97.460 (2002):
-    1122-1140.
-
-Imports:
-    Matrix,
-    foreach,
-    doParallel,
-    parallel,
-    gstat,
-    tidyr,
-    dplyr
-
-VignetteBuilder: knitr
-
-License: GPL (>= 2)
-
-NeedsCompilation: yes
