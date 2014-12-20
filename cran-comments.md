@@ -1,3 +1,9 @@
+## Resubmission changes
+* Made title in title case
+* Included the word 'image' in title
+* Changed 'criteria' to 'criterion' in DESCRIPTION
+* 
+
 ## Test environments
 * local ubuntu 14.04, R 3.1.2
 * Windows 8, R 3.1.2

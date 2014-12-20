@@ -1,0 +1,13 @@
+citHeader("To cite EFDR in publications use:")
+
+citEntry(entry = "Manual",
+           title        = "Enhanced False Detection Rate of Images in the Wavelet Domain",
+           author       = personList(as.person("Andrew Zammit-Mangion"),
+                                  as.person("Hsin-Cheng Huang")),
+           url          = "http://www.github.com/andrewzm/EFDR",
+           year         = "2014",
+           textVersion  =
+                 paste("Zammit-Mangion, A., Huang, H.-C. (2014).",
+                               "Enhanced False Detection Rate of Images in the Wavelet Domain.",
+                               "URL http://www.github.com/andrewzm/EFDR.")
+         )

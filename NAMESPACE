@@ -3,7 +3,6 @@
 export(df.to.mat)
 export(diagnostic.table)
 export(fdrpower)
-export(nei.efdr)
 export(regrid)
 export(test.bonferroni)
 export(test.efdr)
