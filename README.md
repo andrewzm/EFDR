@@ -8,7 +8,7 @@ The package `EFDR` contains the required functions to carry out EFDR in a practi
 Examples
 --------
 
-For tutorials on how to use this package, please visit the [project development page](http://www.github.com/andrewzm) or visit the project index HTML page by typing `help(package = "EFDR")` after installation.
+For tutorials on how to use this package, please visit the [project development page](http://www.github.com/andrewzm/EFDR) or visit the project index HTML page by typing `help(package = "EFDR")` after installation.
 
 Installation
 ------------
