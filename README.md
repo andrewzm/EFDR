@@ -8,7 +8,7 @@ The package `EFDR` contains the required functions to carry out EFDR in a practi
 Examples
 --------
 
-For a tutorial on how to use this package, please click [here](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/docs/EFDR.html). For a case study on the detection of the El Niño and El Niña phenomena, please click [here](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/docs/EFDR_SST.html).
+For tutorials on how to use this package, please visit the [project development page](http://www.github.com/andrewzm) or visit the project index HTML page by typing `help(package = "EFDR")` after installation.
 
 Installation
 ------------
@@ -26,7 +26,7 @@ Open issues
 References
 ----------
 
-Pavlicová, Martina, Thomas J. Santner, and Noel Cressie. "Detecting signals in FMRI data using powerful FDR procedures." Statistics and its interface 1 (2008): 23-32.
+Pavlicová, M., Santner,  T. J., and Cressie, N. "Detecting signals in FMRI data using powerful FDR procedures." Statistics and its interface 1 (2008): 23-32.
 
-Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+Shen, X., Huang, H.-C., and Cressie, N. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 
