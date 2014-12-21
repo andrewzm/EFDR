@@ -1,8 +1,9 @@
 ## Resubmission changes
 * Made title in title case
-* Included the word 'image' in title
+* Changed title to include the word 'image'
 * Changed 'criteria' to 'criterion' in DESCRIPTION
 * Checked also on R-devel (OK) 
+* Put long-running vignettes in inst/doc. The minimal vignette then points the user to 'Other documentation' by typing in help(packages="EFDR"). These documents were generated using RMarkdown prior to submission of this package.
 
 ## Test environments
 * local ubuntu 14.04, R 3.1.2
@@ -15,6 +16,3 @@ There were no ERRORs, WARNINGs or NOTEs.
 
 ## Downstream dependencies
 There are no downstream dependencies
-
-## Vignettes
-Since vignettes are computationally intensive, these have been placed online and referred to in a minimal package vignette
