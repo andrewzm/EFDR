@@ -13,7 +13,8 @@ For tutorials on how to use this package, please visit the [project development 
 Installation
 ------------
 
-- Installation of most dependencies is straightforward. If you are on Linux, for the package `gstat` you will also need to install `libgeos-dev` which is widely available in linux repos. In Ubuntu this is available using `apt-get install libgeos-dev`.
+- Installation of most dependencies is straightforward. If you are on Linux, for the package `gstat` you will also need to install `libgeos-dev` which is widely available in linux repos. In Ubuntu this is available using `apt-get install libgeos-dev`. 
+- To install the latest (development) version please install and load `devtools` and in an R console type `install_github("EFDR","andrewzm")`.
 
 
 Open issues
