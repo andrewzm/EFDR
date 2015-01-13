@@ -19,7 +19,7 @@ test.los(Z, wf = "la8", J = 3, alpha = 0.05)
 \arguments{
 \item{Z}{image of size \code{n1} by \code{2n} where \code{n1,n2} have to be powers of two}
 
-\item{wf}{type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of wavelet names}
+\item{wf}{type of wavelet to employ. Defaults to `la8', the Daubechies orthonormal compactly supported wavelet of length \code{L = 8} (Daubechies, 1992), least asymmetric family. Other options include `haar' (Haar wavelet), `fk8' (Fejer-Korovkin wavelet with \code{L=8}) and `mb8' (minimum-bandwidth wavelet with \code{L=8}). Please type `\code{waveslim::wave.filter}' in the console for a full list of wavelet names}
 
 \item{J}{number of resolutions to employ in wavelet decomposition}
 
@@ -47,13 +47,14 @@ List with three fields:
 }
 }
 \description{
-Test for anomalies using either \code{bonferroni}, \code{FDR}, \code{EFDR} or \code{LOS} in the
-wavelet domain.
+Test for anomalies using either \code{bonferroni}, \code{FDR}, \code{EFDR} or \code{LOS} in the wavelet domain using the 2D wavelet transform.
 }
 \examples{
 ## See vignettes by typing vignette("EFDR_vignettes")
 }
 \references{
+Daubechies, I. (1992) Ten Lectures on Wavelets, CBMS-NSF Regional Conference Series in Applied Mathematics, SIAM: Philadelphia.
+
 Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 }
 

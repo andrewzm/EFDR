@@ -1,13 +1,11 @@
 Package: EFDR
 Type: Package
 Title: Wavelet-Based Enhanced FDR for Signal Detection in Noisy Images
-Version: 1.0
+Version: 0.1.0
 Date: 2014-10-22
 Authors@R: c(person("Andrew", "Zammit-Mangion", role = c("aut", "cre"),
     email = "andrewzm@gmail.com"),
-    person("Hsin-Cheng", "Huang", role = "aut"),
-    person("Brandon", "Whitcher", role = "ctb",
-    email = "bwhitcher at gmail.com"))
+    person("Hsin-Cheng", "Huang", role = "aut"))
 Suggests:
     knitr,
     ggplot2,
@@ -29,16 +27,17 @@ Description: Enhanced False Discovery Rate (EFDR) is a tool to detect anomalies
     American Statistical Association 97.460 (2002): 1122-1140.
 Imports:
     Matrix,
-    foreach,
-    doParallel,
+    foreach (>= 1.4.2),
+    doParallel (>= 1.0.8),
+    waveslim  (>= 1.7.5),
     parallel,
-    gstat,
-    tidyr,
-    dplyr,
-    sp
+    gstat (>= 1.0-19),
+    tidyr (>= 0.1.0.9000),
+    dplyr (>= 0.3.0.2),
+    sp (>= 1.0-15)
 URL: http://github.com/andrewzm/EFDR
 Depends:
     R (>= 3.0)
 VignetteBuilder: knitr
 License: GPL (>= 2)
-NeedsCompilation: yes
+NeedsCompilation: no

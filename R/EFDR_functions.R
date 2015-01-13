@@ -5,10 +5,9 @@
 #' @aliases test.los
 #' @aliases test.efdr
 #' 
-#' @description Test for anomalies using either \code{bonferroni}, \code{FDR}, \code{EFDR} or \code{LOS} in the
-#' wavelet domain.
+#' @description Test for anomalies using either \code{bonferroni}, \code{FDR}, \code{EFDR} or \code{LOS} in the wavelet domain using the 2D wavelet transform.
 #' @param Z image of size \code{n1} by \code{2n} where \code{n1,n2} have to be powers of two
-#' @param wf type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of wavelet names
+#' @param wf type of wavelet to employ. Defaults to `la8', the Daubechies orthonormal compactly supported wavelet of length \code{L = 8} (Daubechies, 1992), least asymmetric family. Other options include `haar' (Haar wavelet), `fk8' (Fejer-Korovkin wavelet with \code{L=8}) and `mb8' (minimum-bandwidth wavelet with \code{L=8}). Please type `\code{waveslim::wave.filter}' in the console for a full list of wavelet names
 #' @param J number of resolutions to employ in wavelet decomposition
 #' @param alpha significance level at which tests are carried out
 #' @param n.hyp number of hypotheses tests to carry out with EFDR. If a vector is supplied, the optimal one from 
@@ -27,7 +26,12 @@
 #'  \item{\code{nhat}}{the number of tests carried out.}
 #' }
 #' @export
-#' @references Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+#' @references 
+#' 
+#' Daubechies, I. (1992) Ten Lectures on Wavelets, CBMS-NSF Regional Conference Series in Applied Mathematics, SIAM: Philadelphia.
+#' 
+#' Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+#'
 #' @examples
 #' ## See vignettes by typing vignette("EFDR_vignettes")
 test.efdr <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,iteration = 200, parallel = 1L)
