@@ -3,16 +3,18 @@
 * Changed title to include the word 'image'. It now reads as 'Wavelet-Based Enhanced FDR for Signal Detection in Noisy Images'
 * Changed 'criteria' to 'criterion' in DESCRIPTION
 * Checked also on R-devel (OK) 
-* Put long-running vignettes in inst/doc. The minimal vignette then points the user to 'Other documentation' by typing in help(packages="EFDR"). These documents were generated using RMarkdown prior to submission of this package.
+* Put long-running tutorials in inst/doc. 
 
 ## Test environments
 * local ubuntu 14.04, R 3.1.2
 * Windows 8, R 3.1.2
 * win-builder (release)
 * R-devel
+* OS X Mavericks, R 3.1.2
 
 ## R CMD check results
-There were no ERRORs, WARNINGs or NOTEs. 
+There were no ERRORs, WARNINGs.
+There was one NOTE because this is a new submission.
 
 ## Downstream dependencies
 There are no downstream dependencies

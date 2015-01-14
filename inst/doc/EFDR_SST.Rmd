@@ -67,7 +67,7 @@ The only unusual things here are the setting of `n1` and `n2` which denote the i
 
 ```{r,cache=TRUE,results='hide'}
 ### Carry out EFDR on every frame
-cl <- makeCluster(parallel)
+cl <- makeCluster(2)
 registerDoParallel(cl)
 
 X <- foreach (t = unique(sst$time),.combine=rbind) %dopar% {
@@ -96,7 +96,7 @@ world<-map_data('world')%>%
   subset(long > 80 & long < 340)
 
 base_plot <- ggplot() + 
-	  theme(panel.background = element_rect(fill='white', colour='black'),
+    theme(panel.background = element_rect(fill='white', colour='black'),
              text = element_text(size=20),
              panel.grid.major =  element_line(colour = "light gray", size = 0.05),
              panel.border  = element_rect(fill=NA, colour='black')) + 
