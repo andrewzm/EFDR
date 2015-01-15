@@ -530,7 +530,8 @@ diagnostic.table <- function(reject.true,reject, n) {
 nei.efdr <- function(Z,wf="la8",J=3,b=11,parallel=1L) {
   
   .check_args(Z=Z,wf=wf,J=J,b=b,parallel=parallel)
-  if(parallel > 1L) cat("Argument 'parallel' is deprecated for nei.efdr() since v0.1.1")
+  
+  ## Argument 'parallel' is deprecated for nei.efdr() since v0.1.1
   parallel <- 1L
   
   dwt.z <- dwt.2d(x=Z,wf=wf,J=J)  
