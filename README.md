@@ -20,6 +20,7 @@ Installation
 Open issues
 ---------------
 
+- `EFDR` is currently not installing on OS X Mavericks due to a missing dependency.
 - regrid() currently accepts data frames in (x,y,z) format. Suggest another function where people can supply images in matrix format with NAs in it. This function will "gather" the rows into xyz format, filter out the NAs and then call regrid.
 - Neighbourhood detection is currently sped up using a parallel backend. This, however, will remain slow on a standard desktop. Suggest implementing in C.
 - Image padding should be integrated, possibly using conditional simulation, see Pavlicová et al. (2008).
