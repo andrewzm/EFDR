@@ -1,4 +1,7 @@
-## Resubmission changes
+## Resubmission changes (v0.1.1)
+* Disabled parallelisation for one command which was slowing the algorithm considerably (no change to the user).
+
+## Resubmission changes (v0.1.0)
 * Made title in title case
 * Changed title to include the word 'image'. It now reads as 'Wavelet-Based Enhanced FDR for Signal Detection in Noisy Images'
 * Changed 'criteria' to 'criterion' in DESCRIPTION
