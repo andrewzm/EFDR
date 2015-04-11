@@ -6,13 +6,13 @@
 test_image(h = 1, r = 10, n1 = 64, n2 = 64)
 }
 \arguments{
-\item{h}{the amplitude of the filled circle}
+\item{h}{amplitude of the filled circle}
 
-\item{r}{the radius of the circle (in pixesl)}
+\item{r}{radius of the circle (in pixels)}
 
-\item{n1}{image width in pixels}
+\item{n1}{image height in pixels}
 
-\item{n2}{image height in pixels}
+\item{n2}{image width in pixels}
 }
 \value{
 List with two elements
@@ -29,7 +29,7 @@ at the centre.
 Z <- test_image()$z
 }
 \references{
-Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 }
 \keyword{EFDR}
 \keyword{image,}

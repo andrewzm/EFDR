@@ -5,34 +5,36 @@
 #' @aliases test.los
 #' @aliases test.efdr
 #' 
-#' @description Test for anomalies using either \code{bonferroni}, \code{FDR}, \code{EFDR} or \code{LOS} in the
-#' wavelet domain.
-#' @param Z image of size \code{n} by \code{n} where \code{n} has to be a power of two
-#' @param wf type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of filter names
-#' @param J number of resolutions to employ in the wavelet decomposition
+#' @description Test for anomalies using either \code{bonferroni}, \code{FDR}, \code{EFDR} or \code{LOS} in the wavelet domain using the 2D wavelet transform.
+#' @param Z image of size \code{n1} by \code{2n} where \code{n1,n2} have to be powers of two
+#' @param wf type of wavelet to employ. Defaults to `la8', the Daubechies orthonormal compactly supported wavelet of length \code{L = 8} (Daubechies, 1992), least asymmetric family. Other options include `haar' (Haar wavelet), `fk8' (Fejer-Korovkin wavelet with \code{L=8}) and `mb8' (minimum-bandwidth wavelet with \code{L=8}). Please type `\code{waveslim::wave.filter}' in the console for a full list of wavelet names
+#' @param J number of resolutions to employ in wavelet decomposition
 #' @param alpha significance level at which tests are carried out
 #' @param n.hyp number of hypotheses tests to carry out with EFDR. If a vector is supplied, the optimal one from 
-#' the set of proposed number of tests is chosen.
+#' the set of proposed number of tests is chosen
 #' @param b the number of neighbours to consider in EFDR
 #' @param iteration number of Monte Carlo iterations to employ when determining which of the proposed number of tests 
 #' in \code{n.hyp} is the optimal number of tests
+#' @param parallel number of cores to use with parallel backend; needs to be an integer less than or equal to the number of available cores
 #' @return List with three fields:
 #' \describe{
-#'  \item{\code{filtered}}{the discrete wavelet transform containing the anomalous wavelet coefficients in the signal.}
-#'  \item{\code{Z}}{the discrete wavelet transform containing the anomalous wavelet coefficients in the signal.}
-#'  \item{\code{reject_coeff}}{indices of wavelets under which the null hypothesis of no anomaly was rejected.}
+#'  \item{\code{filtered}}{the discrete wavelet transform containing the anomalous wavelet coefficients in the signal}
+#'  \item{\code{Z}}{the image containing the anomalous wavelets in the signal}
+#'  \item{\code{reject_coeff}}{indices of wavelets under which the null hypothesis of no anomaly was rejected}
 #'  \item{\code{pvalue_ordered}}{ordered p-values under the null hypothesis. The column names indicate the 
-#'                wavelet to which the p-value pertains}
+#'                wavelet to which the p-value belongs}
 #'  \item{\code{nhat}}{the number of tests carried out.}
 #' }
 #' @export
-#' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+#' @references 
+#' 
+#' Daubechies, I. (1992) Ten Lectures on Wavelets, CBMS-NSF Regional Conference Series in Applied Mathematics, SIAM: Philadelphia.
+#' 
+#' Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+#'
 #' @examples
-#' Z <- test_image(h = 0.5, r = 14, n1 = 64)$z
-#' Z <- Z + rnorm(64^2)*0.2
-#' m1 <- test.bonferroni(Z, wf="la8",J=3, alpha = 0.05)
-#' m2 <- test.efdr(Z, wf="la8",J=3, alpha = 0.05,n.hyp=c(20,40,60,100,120,200,500,1000))
-test.efdr <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,iteration = 200, parallel = FALSE)
+#' ## See vignettes by typing vignette("EFDR_vignettes")
+test.efdr <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,iteration = 200, parallel = 1L)
 {
   
   .check_args(Z = Z,wf = wf,J = J,alpha = alpha,n.hyp = n.hyp,b = b,iteration = iteration,parallel = parallel)
@@ -50,7 +52,7 @@ test.efdr <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,iteration = 20
   test.efdr.base(Z, wf=wf,J=J, alpha = alpha, n.hyp = nhat, b=b, nei=nei)
 }
   
-test.efdr.base <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,nei = NULL, parallel = F)
+test.efdr.base <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,nei = NULL, parallel = 1L)
 {
   .check_args(Z = Z,wf = wf,J = J,alpha = alpha,n.hyp = n.hyp,b = b,nei = nei, parallel = parallel)
   
@@ -203,10 +205,10 @@ test.los <- function(Z,wf="la8",J=3,alpha=0.05)
 #' 
 #' @description This function generates an image for test purposes. The image is that of a filled circle
 #' at the centre.
-#' @param h the amplitude of the filled circle
-#' @param r the radius of the circle (in pixesl)
-#' @param n1 image width in pixels
-#' @param n2 image height in pixels
+#' @param h amplitude of the filled circle
+#' @param r radius of the circle (in pixels)
+#' @param n1 image height in pixels
+#' @param n2 image width in pixels
 #' @return List with two elements
 #' \describe{
 #' \item{\code{z}}{the test image}
@@ -214,7 +216,7 @@ test.los <- function(Z,wf="la8",J=3,alpha=0.05)
 #' }
 #' @keywords test image, EFDR
 #' @export
-#' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+#' @references Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 #' @examples
 #' Z <- test_image()$z
 test_image <- function(h=1,r=10,n1 = 64, n2=64)   {
@@ -248,13 +250,13 @@ test_image <- function(h=1,r=10,n1 = 64, n2=64)   {
 #' wavelet domain. Given an image, the discrete wavelet transform is found. 
 #' The indices of the coefficients which exceed a certain threshold are then
 #' considered the 'signal' for testing purposes.
-#' @param Z image of size \code{n} by \code{n} where \code{n} has to be a power of two
-#' @param wf type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of filter names
+#' @param Z image of size \code{n1} by \code{n2} where \code{n1,n2} have to be powers of two
+#' @param wf type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of wavelet names
 #' @param J number of resolutions to employ in the wavelet decomposition
 #' @param th threshold
 #' @return Indices of wavelet coefficients in a vector
 #' @export
-#' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+#' @references Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 #' @examples
 #' Z <- test_image(h = 0.5, r = 14, n1 = 64)$z
 #' print(wav_th(Z,wf="la8",J=3,th=0.5))
@@ -270,56 +272,6 @@ wav_th <- function(Z, wf = "la8", J = 3, th = 1) {
   
 }
 
-#' @title Find wavelet neighbourhood
-#' 
-#' @description Given a wavelet basis from object \code{waveslim}, this function returns a matrix of size \code{N} by \code{b}
-#' where \code{N} is the number of wavelets and \code{b} is the number of neighbours per wavelet. Two wavelets are deemed
-#' to be neighbours according to the metric of Shen, Huang and Cressie (2002). The distance metric is a function of  the
-#' spatial separation, the resolution and the orientation.
-#' @param dwt object of class \code{dwt.2d}
-#' @param b number of neighbours per wavelet
-#' @param parallel flag to indicate whether multi-threading should be used or not
-#' @return matrix of size \code{N} by \code{b}
-#' @keywords wavelets, neighbourhood
-#' @export
-#' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
-#' @examples
-#' image <- matrix(rnorm(64),8,8)
-#  nei <- nei.efdr(image,b=11)
-nei.efdr <- function(Z,wf="la8",J=3,b=11,parallel=FALSE) {
-  
-  .check_args(Z=Z,wf=wf,J=J,b=b)
-  dwt.z <- dwt.2d(x=Z,wf=wf,J=J)  
-  layers <- .flat.pack(dwt.z,b=b)
-    
-  if(parallel) {
-    #registerDoMC(detectCores())
-    cl <- makeCluster(detectCores())
-    registerDoParallel(cl)
-    
-    
-    nei <- foreach(i=1 : nrow(layers),.combine = rbind) %dopar% {
-      x <- layers[i,]
-      L <- subset(layers, abs(x$s1-s1) < 2.5 & abs(x$s2-s2) < 2.5 & abs(x$j - j) < 2)
-      L$D1 <- .jmk.dist(x$j,x$m,x$s1,x$s2,L$j,L$m,L$s1,L$s2)
-      max.set <- L[order(L$D1),][2:(b+1),]
-      as.numeric(rownames(max.set))
-    }
-    row.names(nei) <- NULL
-    stopCluster(cl)
-  } else {
-    nei <- t( apply(layers,1,function(x) {
-      L <- subset(layers, abs(x['s1']-s1) < 2.5 & abs(x['s2']-s2) < 2.5 & abs(x['j'] - j) < 2)
-      L$D1 <- .jmk.dist(x['j'],x['m'],x['s1'],x['s2'],L$j,L$m,L$s1,L$s2)
-      max.set <- L[order(L$D1),][2:(b+1),]
-      matrix(as.numeric(rownames(max.set)),b,1)
-    }))
-  }
-  nei  
-  
-}
-
-
 #' @title Change xyz data-frame into a Z image
 #' 
 #' @description Given a data frame with fields \code{x, y} and \code{z}, \code{df.to.mat} uses the \code{x} and 
@@ -327,7 +279,7 @@ nei.efdr <- function(Z,wf="la8",J=3,b=11,parallel=FALSE) {
 #' @param df data frame with fields \code{x}, \code{y} and \code{z}
 #' @return matrix image
 #' @details This function requires that \emph{all} pixels in the image are defined, that is \code{df$x} and \code{df$y} must be the 
-#' column outputs of the function expand.grid(x0,y0) where \code{x0, y0} are axes values. Note that \code{x0} and 
+#' column outputs of the function \code{expand.grid(x0,y0)} where \code{x0, y0} are axes values. Note that \code{x0} and 
 #' \code{y0} do not need to be regularly spaced.
 #' @keywords reshape, image
 #' @export
@@ -342,6 +294,9 @@ df.to.mat <- function(df) {
   stopifnot("x" %in% names(df))
   stopifnot("y" %in% names(df))
   stopifnot("z" %in% names(df))
+  
+  x <- y <- z <- NULL # Suppress CRAN notes
+  
   if(!(length(unique(df$x)) * length(unique(df$y)) == nrow(df))) 
     stop("Data frame needs to be in long format x-y-z with x and y being the output of expand.grid(x0,y0),
          where x0 and y0 are the x and y grid points")
@@ -354,7 +309,7 @@ df.to.mat <- function(df) {
          where x0 and y0 are the x and y grid points")
   spread(df,key = x,value=z) %>%
     select(-y) %>%
-    as.matrix() %>%
+    as.matrix() %>% 
     t()
 }
 
@@ -363,25 +318,44 @@ df.to.mat <- function(df) {
 #' @title Regrid ir/regular data
 #' 
 #' @description Given a data frame with fields \code{x, y} and \code{z}, \code{regrid} returns a data frame with
-#' fields \code{x, y} and \code{z}, this time with \code{x, y} arranged on a regular grid of size \code{n} by 
-#' \code{n}. 
+#' fields \code{x, y} and \code{z}, this time with \code{x, y} arranged on a regular grid of size \code{n2} by 
+#' \code{n1}.
 #' @param df data frame with fields \code{x}, \code{y} and \code{z}
 #' @param n1 image length in pixels
 #' @param n2 image height in pixels
-#' @param idp the inverse distance power
-#' @param nmax the number of nearest neighbours to consider when interpolating
-#' @return data frame with \code{x,y} as gridded values
-#' @details The function overlays a grid over the data. The cells are constructed evenly within the bounding 
-#' box of the data. The cells are filled with interpolated values using the inverse weighting distance metric 
+#' @param method method to be used, see details
+#' @param idp inverse distance power
+#' @param nmax when using inverse distance weighting, the number of nearest neighbours to consider when interpolating using idw. 
+#' When using conditional simulation, the number of nearest observations to used for a kriging simulation
+#' @param model the model type when using conditional simulation (use \code{gstat::vgm()} to list all
+#' possible models)
+#' @return data frame with fields \code{x,y,z}
+#' @details There are three supported methods for regridding. The first, "idw", is 
+#' the inverse-distance-weighting method. The function overlays a grid over the data. 
+#' The cells are constructed evenly within the bounding 
+#' box of the data and filled with interpolated values using the inverse weighting distance metric 
 #' with power \code{idp}. \code{nmax} determines the maximum number of neighbours when using the distance weighting.
-#' Interpolation uses the inverse distance weight function \code{gstat} in the \code{gstat} package.
+#' With this method, interpolation uses the inverse distance weight function \code{gstat} in the \code{gstat} package.
 #' Refer to the package \code{gstat} for more details and formulae.
+#' 
+#' The second method "cond_sim" uses conditional simulation to generate a realisation of 
+#' the unobserved process at the grid points. This is a model-based approach, and the 
+#' variogram model may be selected through the parameter \code{model}. The exponential
+#' variogram is used by default. For a complete list of possible models use \code{gstat::vgm()}.   
+#' For a tutorial on how the conditional simulation is carried out see the \code{gstat} vignette. 
+#' 
+#' The third method "median_polishing" applies a median polish to the data. First, a grid is overlayed. If more than one
+#' data point is present in each grid box, the mean of the data is taken. Where there is no data, the grid box is assigned
+#' a value of NA. This gridded image is then passed to the function \code{medpolish} which carried out Tukey's median
+#' polish procedure to obtain an interpolant of the form \eqn{z(s) = \mu + a(s1) + b(s2)} where \eqn{s1} is the x-axis and
+#' \eqn{s2} is the y-axis. Missing points in the gridded image are then replaced with \eqn{z(s)} evaluated at these points. This method 
+#' cannot be used if all rows and columns do not contain at least one data point.
 #' @keywords regrid,interpolate, inverse distance weighting
 #' @export
 #' @examples
 #' df <- data.frame(x = runif(200),y = runif(200),z=rnorm(200))
 #' df.gridded <- regrid(df, n1=10)
-regrid <- function(df,n1 = 128, n2 = n1, idp = 0.5, nmax = 7) {
+regrid <- function(df,n1 = 128, n2 = n1, method="idw", idp = 0.5, nmax = 7,model="Exp") {
   
   stopifnot(is.data.frame(df))
   stopifnot("x" %in% names(df))
@@ -395,9 +369,13 @@ regrid <- function(df,n1 = 128, n2 = n1, idp = 0.5, nmax = 7) {
   stopifnot(idp > 0)
   stopifnot(is.numeric(nmax))
   stopifnot((nmax %% 1 == 0)  & nmax > 0 )
+  stopifnot(method %in% c("idw","median_polish","cond_sim"))
+  stopifnot(model %in% vgm()$short)
   
-  xlim=c(min(df$x),max(df$x))
-  ylim=c(min(df$y),max(df$y))
+  x <- y <- z <- box_x <- box_y <- z.pred <- NULL # Suppress CRAN NOTEs
+  
+  xlim=range(df$x)
+  ylim=range(df$y)
   
   x0 <- seq(xlim[1],xlim[2],,n1+1)
   y0 <- seq(ylim[1],ylim[2],,n2+1)
@@ -408,12 +386,54 @@ regrid <- function(df,n1 = 128, n2 = n1, idp = 0.5, nmax = 7) {
   df.regrid <- expand.grid(x0[-1] - xd,y0[-1] - yd)
   names(df.regrid) <- c("x","y")
   
-  gstat(id = "z", formula = z ~ 1, locations = ~ x + y,
-        data = df, nmax = nmax, set = list(idp = idp)) %>%
-    predict(df.regrid) %>%
-    mutate(z = z.pred) %>%
-    select(x,y,z)
-  
+  if(method == "idw") {  
+    
+    df.regrid <-
+      gstat(id = "z", formula = z ~ 1, locations = ~ x + y,
+          data = df, nmax = nmax, set = list(idp = idp)) %>%
+      predict(df.regrid) %>%
+      mutate(z = z.pred) %>%
+      select(x,y,z)
+  } else if(method == "cond_sim") {
+    df.spat <- df
+    coordinates(df.spat) = ~x+y
+    
+    df.regrid.spat <- df.regrid
+    coordinates(df.regrid.spat) = ~x+y
+    
+    start_range <- max(diff(range(df$y)),diff(range(df$x)))/3
+    image.vgm = variogram(z~1, data=df.spat)
+    fit = fit.variogram(image.vgm, model = vgm(var(df$z),"Exp",start_range,var(df$z)/10))
+    df.regrid$z = krige(z~1, df.spat, df.regrid.spat, 
+                        model = fit,nmax = nmax, nsim = 1)$sim1
+  } else if(method == "median_polish") {
+    x02 <- seq(xlim[1] - diff(xlim)/n1/2,xlim[2] + diff(xlim)/n1/2,,n1+1)
+    y02 <- seq(ylim[1] - diff(ylim)/n1/2,ylim[2] + diff(ylim)/n2/2,,n2+1)
+    
+    df.boxed <- df %>%
+      mutate(box_x = cut(x,x02,labels=F),
+             box_y = cut(y,y02,labels=F)) %>%
+      group_by(box_x,box_y) %>%
+      summarise(z = mean(z)) %>%
+      data.frame()
+      
+    Z <- df.regrid %>% 
+      mutate(box_x = cut(x,x02,labels=F),
+             box_y = cut(y,y02,labels=F)) %>%
+      left_join(df.boxed,by=c("box_x","box_y")) %>%
+      select(x,y,z) %>%
+      df.to.mat()
+    
+    med_Z <- medpolish(Z,na.rm=T)
+    if (any(is.na(med_Z$row)) | any(is.na(med_Z$col))) 
+      stop("Grid with chosen size has rows or columns with 
+           no observations. Use method='idw' or a lower resolution.")
+    med_Z$residuals[which(is.na(Z),arr.ind=T)] <- 0 # use median polish where we do not have data
+    df.regrid$z <- c(med_Z$overall + 
+                outer(med_Z$row,med_Z$col, "+") + 
+                med_Z$residuals)
+  }
+  df.regrid
 }
 
 
@@ -421,11 +441,11 @@ regrid <- function(df,n1 = 128, n2 = n1, idp = 0.5, nmax = 7) {
 #' 
 #' @description Returns the power of the multiple hypothesis test, by finding
 #' the proportion of the correctly rejected null hypotheses.
-#' @param reject.true the indices of the true alternative hypotheses
-#' @param reject the indices of rejected null hypotheses
+#' @param reject.true indices of the true alternative hypotheses
+#' @param reject indices of the rejected null hypotheses
 #' @return Single value (proportion)
 #' @export
-#' @references Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+#' @references Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 #' @examples
 #' set.seed(1)
 #' wf = "la8"
@@ -450,12 +470,12 @@ fdrpower <- function(reject.true,reject) {
 #' @description Returns the a 2x2 table resulting from diagnostic evaluation. 
 #' The cells contain the number of true negatives, true positives, false negatives 
 #' and false positives.
-#' @param reject.true the indices of the true alternative hypotheses
-#' @param reject the indices of rejected null hypotheses
+#' @param reject.true indices of the true alternative hypotheses
+#' @param reject indices of the rejected null hypotheses
 #' @param n total number of tests
 #' @return 2x2 matrix
 #' @export
-#' @references Noel Cressie and Sandy Burden (2014). "Evaluation of diagnostics for hierarchical spatial statistical models" Contribution fo Mardia Festschrift.
+#' @references Noel Cressie and Sandy Burden (2015). "Evaluation of diagnostics for hierarchical spatial statistical models." Contribution to K. V. Mardia Festschrift, Wiley, Chichester, forthcoming.
 #' @examples
 #' set.seed(1)
 #' wf = "la8"
@@ -489,6 +509,63 @@ diagnostic.table <- function(reject.true,reject, n) {
   
 }
 
+#' @title Find wavelet neighbourhood
+#' 
+#' @description Given an image, this function first computes the 2d DWT and  then returns a 
+#' matrix of size \code{N} by \code{b} where \code{N} is the number of wavelets and \code{b} 
+#' is the number of neighbours per wavelet. Two wavelets are deemed
+#' to be neighbours according to the metric of Shen, Huang and Cressie (2002). The distance metric is a function of  the
+#' spatial separation, the resolution and the orientation.
+#' @param Z image of size \code{n1} by \code{n2} where both \code{n1,n2} have to be powers of two
+#' @param wf type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of wavelet names
+#' @param J number of resolutions to employ in the wavelet decomposition
+#' @param b number of neighbours to consider in EFDR 
+#' @param parallel number of cores to use with parallel backend; needs to be an integer less than the number of available cores
+#' @return matrix of size \code{N} by \code{b}
+#' @keywords wavelets, neighbourhood
+#' @references Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+#' @examples
+#' image <- matrix(rnorm(64),8,8)
+#  nei <- nei.efdr(image,b=11)
+nei.efdr <- function(Z,wf="la8",J=3,b=11,parallel=1L) {
+  
+  .check_args(Z=Z,wf=wf,J=J,b=b,parallel=parallel)
+  
+  ## Argument 'parallel' is deprecated for nei.efdr() since v0.1.1
+  parallel <- 1L
+  
+  dwt.z <- dwt.2d(x=Z,wf=wf,J=J)  
+  layers <- .flat.pack(dwt.z,b=b)
+  
+  i <- s1 <-s2 <- j <- NULL # Suppress CRAN NOTEs
+  
+  if(parallel > 1L) {
+    #registerDoMC(detectCores())
+    cl <- makeCluster(parallel)
+    registerDoParallel(cl)
+    
+    
+    nei <- foreach(i=1 : nrow(layers),.combine = rbind) %dopar% {
+      x <- layers[i,]
+      L <- subset(layers, abs(x$s1-s1) < 2.5 & abs(x$s2-s2) < 2.5 & abs(x$j - j) < 2)
+      L$D1 <- .jmk.dist(x$j,x$m,x$s1,x$s2,L$j,L$m,L$s1,L$s2)
+      max.set <- L[order(L$D1),][2:(b+1),]
+      as.numeric(rownames(max.set))
+    }
+    row.names(nei) <- NULL
+    stopCluster(cl)
+  } else {
+    nei <- t( apply(layers,1,function(x) {
+      L <- subset(layers, abs(x['s1']-s1) < 2.5 & abs(x['s2']-s2) < 2.5 & abs(x['j'] - j) < 2)
+      L$D1 <- .jmk.dist(x['j'],x['m'],x['s1'],x['s2'],L$j,L$m,L$s1,L$s2)
+      max.set <- L[order(L$D1),][2:(b+1),]
+      matrix(as.numeric(rownames(max.set)),b,1)
+    }))
+  }
+  nei  
+  
+}
+
 
 ### check if input is a power of two
 .IsPowerOfTwo <- function(x) {
@@ -496,7 +573,7 @@ diagnostic.table <- function(reject.true,reject, n) {
 }
 
 ### check input arguments
-.check_args <- function(Z,wf="la8",J=3,alpha = 0.05,n.hyp = 1L,b = 11L,nei = NULL,iteration = 1L,parallel=FALSE) {
+.check_args <- function(Z,wf="la8",J=3,alpha = 0.05,n.hyp = 1L,b = 11L,nei = NULL,iteration = 1L,parallel=1L) {
   if(!is.matrix(Z)) stop("Z needs to be a matrix")
   #if(!(ncol(Z) == nrow(Z))) stop("Z needs to be square")
   if(!(.IsPowerOfTwo(ncol(Z))) |  !(.IsPowerOfTwo(nrow(Z)))) stop("Z needs to have rows and columns a power of two")
@@ -512,7 +589,8 @@ diagnostic.table <- function(reject.true,reject, n) {
   if(any(n.hyp > length(unlist(dwt.2d(Z,wf=wf))))) stop("Every element in n.hyp needs to be smaller 
    than the number of wavelet coefficients (i.e. smaller than the number of tests available)")
   if(!((b %% 1 == 0)  & b > 0 )) stop("b needs to be an integer greater than zero")
-  if(!is.logical(parallel)) stop("parallel needs to be a logical variable")
+  if(!((parallel %% 1 == 0)  & parallel > 0 )) stop("parallel needs to be a positive integer")
+  if(parallel > detectCores()) stop("parallel needs to be less than the number of available cores")
 #   if(!(is.null(nei))) {
 #     if(!is.matrix(nei)) stop("nei needs to be a matrix or NULL")
 #     if(!all(dim(nei) == c(length(unlist(dwt.z)),b))) stop("nei needs to be of the correct dimensions (n x b)")
@@ -520,7 +598,7 @@ diagnostic.table <- function(reject.true,reject, n) {
 }
 
 ### function to find the L*
-.gdf <- function(Z, wf = "la8", J = 3, alpha = 0.05, n.hyp=c(100,150,200),iteration=200,b=11,nei=NULL,parallel=FALSE)
+.gdf <- function(Z, wf = "la8", J = 3, alpha = 0.05, n.hyp=c(100,150,200),iteration=200,b=11,nei=NULL,parallel=1L)
 {
   
   stopifnot(is.numeric(iteration))
@@ -559,10 +637,10 @@ diagnostic.table <- function(reject.true,reject, n) {
     sum((unlist(dwt.z)-unlist(dwt.zhat))^2)+2*g*sigma^2
   }
   
-  if(parallel) {
+  if(parallel > 1L) {
     
     
-    cl <- makeCluster(detectCores())
+    cl <- makeCluster(parallel)
     registerDoParallel(cl)
     loss <- foreach(i = seq_along(n.hyp), .combine=c) %dopar% {
       find_loss(i)
@@ -731,247 +809,5 @@ diagnostic.table <- function(reject.true,reject, n) {
   }
   .relist.dwt(z_unlist,dwt)
   
-}
-
-
-
-##############################
-### DEPRECATED
-##############################
-
-### Find the EFDR neighbourhood weights
-.weights.efdr <- function(dwt) {
-  weight <- dwt
-  n <- nrow(weight[[1]])
-  
-  for(i in 1:3){
-    temp <- array(0,c(12,n,n))
-    temp[1,,] <- dwt[[i]][c(2:n,1),]^2
-    temp[2,,] <- dwt[[i]][c(n,1:(n-1)),]^2
-    temp[3,,] <- dwt[[i]][,c(2:n,1)]^2
-    temp[4,,] <- dwt[[i]][,c(n,1:(n-1))]^2
-    temp[5,,] <- dwt[[i]][c(2:n,1),c(2:n,1)]^2
-    temp[6,,] <- dwt[[i]][c(n,1:(n-1)),c(n,1:(n-1))]^2
-    temp[7,,] <- dwt[[i]][c(n,1:(n-1)),c(2:n,1)]^2
-    temp[8,,] <- dwt[[i]][c(2:n,1),c(n,1:(n-1))]^2
-    temp[9,,] <- kronecker(dwt[[i+3]]^2,matrix(1,2,2))
-    temp[10,,] <- dwt[[1]]^2
-    temp[11,,] <- dwt[[2]]^2
-    temp[12,,] <- dwt[[3]]^2
-    temp[i+9,,] <- matrix(0,n,n)
-    weight[[i]] <- apply(temp,c(2,3),max)
-  }
-  
-  
-  n <- nrow(weight[[4]])
-  for(i in 4:6){
-    temp <- array(0,c(12,n,n))
-    temp[1,,] <- dwt[[i]][c(2:n,1),]^2
-    temp[2,,] <- dwt[[i]][c(n,1:(n-1)),]^2
-    temp[3,,] <- dwt[[i]][,c(2:n,1)]^2
-    temp[4,,] <- dwt[[i]][,c(n,1:(n-1))]^2
-    temp[5,,] <- kronecker(dwt[[i+3]]^2,matrix(1,2,2))
-    temp[6,,] <- dwt[[i-3]][2*(1:n)-1,2*(1:n)-1]^2
-    temp[7,,] <- dwt[[i-3]][2*(1:n)-1,2*(1:n)]^2
-    temp[8,,] <- dwt[[i-3]][2*(1:n),2*(1:n)-1]^2
-    temp[9,,] <- dwt[[i-3]][2*(1:n),2*(1:n)]^2
-    temp[10,,] <- dwt[[4]]^2
-    temp[11,,] <- dwt[[5]]^2
-    temp[12,,] <- dwt[[6]]^2
-    temp[i+6,,] <- matrix(0,n,n) ### AGAIN REMOVING THE LOCAL NODE... WHY??
-    weight[[i]] <- apply(temp,c(2,3),max)
-  }
-  
-  n <- nrow(weight[[7]])
-  for(i in 7:9){
-    temp <- array(0,c(12,n,n))
-    temp[1,,] <- dwt[[i]][c(2:n,1),]^2
-    temp[2,,] <- dwt[[i]][c(n,1:(n-1)),]^2
-    temp[3,,] <- dwt[[i]][,c(2:n,1)]^2
-    temp[4,,] <- dwt[[i]][,c(n,1:(n-1))]^2
-    temp[5,,] <- dwt[[i-3]][2*(1:n)-1,2*(1:n)-1]^2
-    temp[6,,] <- dwt[[i-3]][2*(1:n)-1,2*(1:n)]^2
-    temp[7,,] <- dwt[[i-3]][2*(1:n),2*(1:n)-1]^2
-    temp[8,,] <- dwt[[i-3]][2*(1:n),2*(1:n)]^2
-    temp[9,,] <- dwt[[7]]^2
-    temp[10,,] <- dwt[[8]]^2
-    temp[11,,] <- dwt[[9]]^2
-    temp[12,,] <- dwt[[10]]^2
-    temp[i+2,,] <- matrix(0,n,n)
-    weight[[i]] <- apply(temp,c(2,3),max)
-  }
-  
-  ### Replace coefficients with largest order statistics of neighbours
-  ### PROBLEM: WHY ISN'T THE NODE IN QUESTION CONSIDERED??
-  temp <- array(0,c(12,n,n))
-  temp[1,,] <- dwt[[10]][c(2:n,1),]^2 # neighbours below
-  temp[2,,] <- dwt[[10]][c(8,1:(n-1)),]^2 # neighbours to the left
-  temp[3,,] <- dwt[[10]][,c(2:n,1)]^2 # neighbours to the right
-  temp[4,,] <- dwt[[10]][,c(n,1:(n-1))]^2 # neighbours above
-  temp[5,,] <- dwt[[10]][c(2:n,1),c(2:n,1)]^2 # neighbours bottom right
-  temp[6,,] <- dwt[[10]][c(2:n,1),c(n,1:(n-1))]^2 # neighbours bottom left
-  temp[7,,] <- dwt[[10]][c(n,1:(n-1)),c(2:n,1)]^2 # neighbours top right
-  temp[8,,] <- dwt[[10]][c(n,1:(n-1)),c(n,1:(n-1))]^2 # neighbours top left
-  temp[9,,] <- dwt[[7]]^2  # same scale different orientation
-  temp[10,,] <- dwt[[8]]^2 # same scale different orientation
-  temp[11,,] <- dwt[[9]]^2 # same scale different orientation
-  weight[[10]] <- apply(temp,c(2,3),max) # maximum from all neighbours
-  
-  weight[[10]] <- weight[[10]]/weight[[10]] * 1e10 # Set v(0) to infinity as in paper
-  
-  weight
-  
-}
-
-
-### Find the EFDR neighbourhood weights
-.weights.efdr2 <- function(dwt,b=11) {
-  
-  ## Put into j,m,k1,k2 coordinate system
-  M <- 3
-  J <- (length(dwt)-1)/M
-  K1 <- K2 <- nrow(dwt[[1]])
-  
-  dwt.t <- array(NA,dim=c(J,M+1,K1,K1))
-  for (j in 1:J) 
-    for(m in 1:M){
-      dwt.partial <- dwt[[(j-1)*M + m]]
-      n <- K1*2^{-(j-1)}
-      dwt.t[j,m,1:n,1:n] <- dwt.partial
-    }
-  
-  dwt.t[J,M+1,1:n,1:n] <- dwt[[J*M + 1]]
-  
-  weight <- dwt.t * 0
-  for (j in J:1) {# start from coarsest resolution and go down to the finest
-    n <- K1*2^{-(j-1)}
-    
-    ## Set up comparison table
-    grid_points1 <- expand.grid(1:n,1:n)
-    grid_points2 <- expand.grid(1:(2*n),1:(2*n))
-    grid_points3 <- expand.grid(1:(n/2),1:(n/2))
-    
-    layers <- data.frame(k1 =  grid_points1[,1], k2 = grid_points1[,2],m = 1,j=j)
-    layers <- rbind(layers,data.frame(k1 =  grid_points2[,1], k2 = grid_points2[,2],m = 1,j=j-1))
-    layers <- rbind(layers,data.frame(k1 =  grid_points3[,1], k2 = grid_points3[,2],m = 1,j=j+1))
-    layers_temp <- layers
-    for( m in 2:M) {
-      layers_temp$m <- m
-      layers <- rbind(layers,layers_temp)
-    }
-    
-    # If we also need to include the scaling function coefficients
-    if (j == J) {
-      layers <- rbind(layers,data.frame(k1 =  grid_points1[,1], k2 = grid_points1[,2],m = 4,j=j))
-    }
-    if (j == (J-1)) {
-      layers <- rbind(layers,data.frame(k1 =  grid_points3[,1], k2 = grid_points3[,2],m = 4,j=j + 1))
-    }
-    
-    layers <- subset(layers, j %in% 1:J)
-    
-    layers2 <- ddply(layers,"j",function(df) {
-      if (df$j[1] == j){
-        df$s1 = df$k1
-        df$s2 = df$k2
-      } else if(df$j[1] == (j - 1)) {
-        df$s1 = (df$k1 + 1)/2
-        df$s2 = (df$k2 + 1)/2
-      } else {
-        df$s1 = 2*df$k1 - 1
-        df$s2 = 2*df$k2 - 1
-      }
-      return(df)
-    })
-    
-    for (m in 1:M)
-      for(k1 in 1:n)
-        for(k2 in 1:n) {
-          this_k1 <- k1; this_k2 <- k2
-          L <- subset(layers2, abs(this_k1-s1) < 2.5 & abs(this_k2-s2) < 2.5)
-          L$D1 <- .jmk.dist(j,m,k1,k2,L$j,L$m,L$s1,L$s2)
-          max.set <- L[order(L$D1),][2:(b+1),]
-          weight[j,m,k1,k2] <- max(dwt.t[cbind(max.set$j,max.set$m,max.set$k1,max.set$k2)]^2)
-        }
-  }
-  weight[J,M+1,,] <- 1e10
-  
-  
-  weight.list <- dwt
-  for (j in 1:J) 
-    for(m in 1:M){
-      n <- K1*2^{-(j-1)}
-      weight.list[[(j-1)*M + m]] <- weight[j,m,1:n,1:n]
-    }
-  weight.list[[J*M + 1]] <- weight[J,M+1,1:n,1:n]
-  
-  
-  weight.list
-}
-
-
-
-### Add noise to object
-add.noise <- function(dwt,noise_sd) {
-  .lapply.dwt(dwt, f = function(x) {
-    x + rnorm(length(x),sd=noise_sd)})                 
-}
-
-
-
-.regrid <- function(df,n1 = 128, n2 = n1) {
-  
-  stopifnot(is.data.frame(df))
-  stopifnot("x" %in% names(df))
-  stopifnot("y" %in% names(df))
-  stopifnot("z" %in% names(df))
-  stopifnot(is.numeric(n1))
-  stopifnot(is.numeric(n2))
-  stopifnot((n1 %% 1 == 0)  & n1 > 0 )
-  stopifnot((n2 %% 1 == 0)  & n2 > 0 )
-  
-  xlim=c(min(df$x),max(df$x))
-  ylim=c(min(df$y),max(df$y))
-  
-  x0 <- seq(xlim[1],xlim[2],,n1+1)
-  y0 <- seq(ylim[1],ylim[2],,n2+1)
-  
-  xd <- mean(diff(x0))/2
-  yd <- mean(diff(y0))/2
-  
-  xy.grid <- expand.grid(x0[-1] - xd,y0[-1] - yd)
-  names(xy.grid) <- c("x","y")
-  xy.grid <- xy.grid %>% mutate(xbox =  cut(x, breaks = x0,labels = FALSE), 
-                                ybox =  cut(y, breaks = y0,labels = FALSE))
-  
-  df <- df %>% mutate(xbox =  cut(x, breaks = x0,labels = FALSE), 
-                      ybox =  cut(y, breaks = y0,labels = FALSE)) %>%  
-    select(xbox,ybox,z) %>%
-    filter(!is.na(xbox) & !(is.na(ybox))) %>%
-    group_by(xbox,ybox) %>%
-    summarise(z = mean(z)) %>%
-    merge(xy.grid,by=c("xbox","ybox"),all.y=T)
-  
-}
-
-
-.interp.idw <- function(df,idp=0.5,nmax=7) {
-  
-  stopifnot(is.data.frame(df))
-  stopifnot("x" %in% names(df))
-  stopifnot("y" %in% names(df))
-  stopifnot("z" %in% names(df))
-  stopifnot(is.numeric(idp))
-  stopifnot(idp > 0)
-  stopifnot(is.numeric(nmax))
-  stopifnot((nmax %% 1 == 0)  & nmax > 0 )
-  
-  df1 <- subset(df,!is.na(z))
-  df2 <- subset(df,select=c("x","y"))
-  gstat(id = "z", formula = z ~ 1, locations = ~ x + y,
-        data = df1, nmax = 7, set = list(idp = idp)) %>%
-    predict(df2) %>%
-    mutate(z = z.pred) %>%
-    select(x,y,z)
 }
 

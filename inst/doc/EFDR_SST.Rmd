@@ -1,0 +1,167 @@
+---
+output: html_vignette
+vignette: >
+  %\VignetteIndexEntry{Enhanced False Detection Rate for detecting sea-surface temperature anomalies}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+
+Enhanced False Discovery Rate (EFDR): Detecting sea-surface temperature anomalies
+===================
+**Andrew Zammit Mangion**
+
+**13-Jan-2015**
+
+In this second tutorial we will examine the use of EFDR for anomaly detection of sea-surface temperatures (SST) in the tropical Pacific ocean. Every few or more years, the sea-surface temperature in this area rises dramatically in a phenomenon known as [El Niño](http://en.wikipedia.org/wiki/El_Ni%C3%B1o). The reverse effect, SST cooling in this area, is named [La Niña](http://en.wikipedia.org/wiki/La_Ni%C3%B1a).  Before going through this vignette, it is important you have covered the [first EFDR tutorial](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/docs/EFDR.html) which illustrates the basic concepts of EFDR and the `R` package we will be using here.
+
+## The Code
+
+
+We will first load some packages which we will use throughout this example:
+
+```{r,message=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(foreach)
+library(parallel)
+library(doParallel)
+library(RCurl)
+library(animation)
+```
+
+Second, we will load the SST data available from the website of [Chris Wikle](http://www.stat.missouri.edu/~wikle/datasets.html) at University of Missouri. There are three data sets which we need, (i) the lon-lat coordinates, (ii) the SST data at these coordinates (at 399 time points, one for each month between January 1970 and March 2003) and (iii) the land mask. For this we use the `RCurl` package. The data is then piped into several pre-processing stages: (i) the data frame is set into `long` format using the `gather` command, (ii) the factor `date` is a given month in a given year and is converted to an integer which we denote `time` and (iii) we subset the data to only include the region of interest without land mass.
+
+```{r,cache=FALSE}
+sst <- getURL("http://www.stat.missouri.edu/~wikle/SSTlonlat.dat") %>%
+  textConnection() %>%
+  read.table(col.names = c("x","y")) %>%
+  cbind(getURL("http://www.stat.missouri.edu/~wikle/SST011970_032003.dat") %>%
+          textConnection() %>%
+          read.table()) %>%
+  mutate(land = (getURL("http://www.stat.missouri.edu/~wikle/SSTlandmask.dat") %>%
+           textConnection() %>%
+           read.table())[,1]) %>% 
+  gather(date,z,-x,-y,-land) %>%
+  mutate(time = as.numeric(date)) %>%
+  select(-date) %>%
+  subset(x > 155 & x < 280 & y <14&land==0)
+```
+
+We are now ready to implement EFDR. First we declare the parameters (please refer to the [first EFDR tutorial](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/docs/EFDR.html) for a description of these):
+
+```{r,cache=FALSE}
+### Set parameters
+n1 =        64
+n2 =        32
+idp =       0.5
+nmax =      6
+alpha =     0.05        # 5% significant level
+wf =        "la8"       # wavelet name
+J =         3           # 3 resolutions
+b =         5     
+parallel =  detectCores()/2 # use half the number of available cores
+```
+
+The only unusual things here are the setting of `n1` and `n2` which denote the image size. We will be using a 64 x 32 image as the SST data is at a similar resolution in the area of interest. The `registerDoParallel()` command allocates half of your machine's cores to the following `foreach` operation, which treats each SST time point individually. NB: The following can take a long time and it produces quite a lot of output. On a 64 core machine, this took about 10 minutes.
+
+```{r,cache=TRUE,results='hide'}
+### Carry out EFDR on every frame
+cl <- makeCluster(2)
+registerDoParallel(cl)
+
+X <- foreach (t = unique(sst$time),.combine=rbind) %dopar% {
+  library(EFDR)
+  sst_t <- subset(sst,time==t)
+  sst_t_regrid <- regrid(sst_t,n1=n1,n2=n2,idp= idp,nmax = nmax)
+  sst_t_regrid$zsig <- c(test.efdr(df.to.mat(sst_t_regrid), wf=wf,J=J, 
+                                   alpha = alpha,parallel=parallel)$Z)
+  sst_t_regrid$t <- t
+  sst_t_regrid
+}
+
+stopCluster(cl)
+```
+
+The operation above takes each SST time point, regrids it on the 64 x 32 grid, and then carries out EFDR on each image! The results are then combined into one long data frame. 
+
+## Results
+
+To visualise the results we first create a function which plots the EFDR significant areas (i.e. the wavelets deemed significant) of each image. For this we harness the power of `ggplot()`. We will not go through the code in detail as most of it is mundane and self-explanatory.
+
+```{r}
+### Plotting
+world<-map_data('world')%>%
+  mutate(long = ifelse(long < 80,long + 360,long) ) %>%
+  subset(long > 80 & long < 340)
+
+base_plot <- ggplot() + 
+    theme(panel.background = element_rect(fill='white', colour='black'),
+             text = element_text(size=20),
+             panel.grid.major =  element_line(colour = "light gray", size = 0.05),
+             panel.border  = element_rect(fill=NA, colour='black')) + 
+		geom_path(data=world,aes(x=long,y=lat,group=group)) +
+		geom_rect(data=data.frame(x1=155,x2=280,y1=14,y2=-29),
+			mapping=aes(xmin=x1,xmax=x2,ymin=y1,ymax=y2),
+      alpha=0,colour="black",linetype="dashed")
+
+mon <- c("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec")
+plot_time <- function(i) {
+  base_plot + 
+    geom_tile(data=subset(X,t==i),aes(x,y,fill=zsig,alpha=abs(zsig))) + 
+    geom_text(data=data.frame(txt=paste(mon[(i-1)%%12+1],
+                                         floor((i-1)/12)+1970)),
+              aes(x=245, y = -50, label=txt),size=10) +
+    scale_fill_gradient2(low="blue",mid="white",high="red",limits=c(-6,6)) +
+    scale_alpha(guide = 'none') +
+    guides(fill=guide_legend(title="degC"))+
+    coord_fixed(xlim=c(120,300))   
+}
+```
+
+What we did next is produce a video, but since this takes a *really* long time, we will just add the code below for those interested, but not evaluate it.
+
+```{r,eval=FALSE}
+### Do video (NOT RUN)
+library(animation)
+oopt <- animation::ani.options(interval = 0.7)
+
+FUN2 <- function() {
+ t = 1:399
+ lapply(t, function(i) {
+   print(plot_time(i))
+   ani.pause()
+ })
+}
+
+FUN2()
+saveHTML(FUN2(), autoplay = FALSE, loop = FALSE, verbose = FALSE, outdir = ".",
+        single.opts = "'controls': ['first', 'previous', 'play', 'next', 'last', 'loop', 'speed'], 'delayMin': 0")
+```
+
+Here, instead, we will simply plot some of the interesting time points. Occurrences of El Niño and La Niña, and the respective strength, are given in http://ggweather.com/enso/oni.htm. The video (not shown) gives a clear indication when these have occurred. The time points which stand-out correspond to those given in the cited website, although on one occasion (1999--2000) the EFDR-smoothed plot did not show the La Niña event in the original SST data. We plot some of the detected anomalies below:
+
+```{r,fig.height=6,fig.width=6,interval=1}
+#August 1972 strong El Niño event
+plot_time(2*12 + 8)
+```
+
+```{r,fig.height=6,fig.width=6,interval=1}
+#January 1974 strong La Niña event
+plot_time(4*12 + 1)
+```
+
+```{r,fig.height=6,fig.width=6,interval=1}
+#November 1975 strong La Niña event
+plot_time(5*12 + 11)
+```
+
+```{r,fig.height=6,fig.width=6,interval=1}
+#December 1982 strong El Niño event
+plot_time(12*12 + 12)
+```
+
+```{r,fig.height=6,fig.width=6,interval=1}
+#August 1997 strong El Niño event
+plot_time(27*12 + 8)
+```

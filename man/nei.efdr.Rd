@@ -3,21 +3,26 @@
 \alias{nei.efdr}
 \title{Find wavelet neighbourhood}
 \usage{
-nei.efdr(Z, wf = "la8", J = 3, b = 11, parallel = FALSE)
+nei.efdr(Z, wf = "la8", J = 3, b = 11, parallel = 1L)
 }
 \arguments{
-\item{b}{number of neighbours per wavelet}
+\item{Z}{image of size \code{n1} by \code{n2} where both \code{n1,n2} have to be powers of two}
 
-\item{parallel}{flag to indicate whether multi-threading should be used or not}
+\item{wf}{type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of wavelet names}
 
-\item{dwt}{object of class \code{dwt.2d}}
+\item{J}{number of resolutions to employ in the wavelet decomposition}
+
+\item{b}{number of neighbours to consider in EFDR}
+
+\item{parallel}{number of cores to use with parallel backend; needs to be an integer less than the number of available cores}
 }
 \value{
 matrix of size \code{N} by \code{b}
 }
 \description{
-Given a wavelet basis from object \code{waveslim}, this function returns a matrix of size \code{N} by \code{b}
-where \code{N} is the number of wavelets and \code{b} is the number of neighbours per wavelet. Two wavelets are deemed
+Given an image, this function first computes the 2d DWT and  then returns a
+matrix of size \code{N} by \code{b} where \code{N} is the number of wavelets and \code{b}
+is the number of neighbours per wavelet. Two wavelets are deemed
 to be neighbours according to the metric of Shen, Huang and Cressie (2002). The distance metric is a function of  the
 spatial separation, the resolution and the orientation.
 }
@@ -25,7 +30,7 @@ spatial separation, the resolution and the orientation.
 image <- matrix(rnorm(64),8,8)
 }
 \references{
-Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 }
 \keyword{neighbourhood}
 \keyword{wavelets,}

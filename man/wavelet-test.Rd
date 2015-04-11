@@ -8,7 +8,7 @@
 \title{Test for anomalies in wavelet space}
 \usage{
 test.efdr(Z, wf = "la8", J = 3, alpha = 0.05, n.hyp = 100, b = 11,
-  iteration = 200, parallel = FALSE)
+  iteration = 200, parallel = 1L)
 
 test.fdr(Z, wf = "la8", J = 3, alpha = 0.05)
 
@@ -17,44 +17,44 @@ test.bonferroni(Z, wf = "la8", J = 3, alpha = 0.05)
 test.los(Z, wf = "la8", J = 3, alpha = 0.05)
 }
 \arguments{
-\item{Z}{image of size \code{n} by \code{n} where \code{n} has to be a power of two}
+\item{Z}{image of size \code{n1} by \code{2n} where \code{n1,n2} have to be powers of two}
 
-\item{wf}{type of wavelet to employ. Please see \code{waveslim::wave.filter}  for a full list of filter names}
+\item{wf}{type of wavelet to employ. Defaults to `la8', the Daubechies orthonormal compactly supported wavelet of length \code{L = 8} (Daubechies, 1992), least asymmetric family. Other options include `haar' (Haar wavelet), `fk8' (Fejer-Korovkin wavelet with \code{L=8}) and `mb8' (minimum-bandwidth wavelet with \code{L=8}). Please type `\code{waveslim::wave.filter}' in the console for a full list of wavelet names}
 
-\item{J}{number of resolutions to employ in the wavelet decomposition}
+\item{J}{number of resolutions to employ in wavelet decomposition}
 
 \item{alpha}{significance level at which tests are carried out}
 
 \item{n.hyp}{number of hypotheses tests to carry out with EFDR. If a vector is supplied, the optimal one from
-the set of proposed number of tests is chosen.}
+the set of proposed number of tests is chosen}
 
 \item{b}{the number of neighbours to consider in EFDR}
 
 \item{iteration}{number of Monte Carlo iterations to employ when determining which of the proposed number of tests
 in \code{n.hyp} is the optimal number of tests}
+
+\item{parallel}{number of cores to use with parallel backend; needs to be an integer less than or equal to the number of available cores}
 }
 \value{
 List with three fields:
 \describe{
- \item{\code{filtered}}{the discrete wavelet transform containing the anomalous wavelet coefficients in the signal.}
- \item{\code{Z}}{the discrete wavelet transform containing the anomalous wavelet coefficients in the signal.}
- \item{\code{reject_coeff}}{indices of wavelets under which the null hypothesis of no anomaly was rejected.}
+ \item{\code{filtered}}{the discrete wavelet transform containing the anomalous wavelet coefficients in the signal}
+ \item{\code{Z}}{the image containing the anomalous wavelets in the signal}
+ \item{\code{reject_coeff}}{indices of wavelets under which the null hypothesis of no anomaly was rejected}
  \item{\code{pvalue_ordered}}{ordered p-values under the null hypothesis. The column names indicate the
-               wavelet to which the p-value pertains}
+               wavelet to which the p-value belongs}
  \item{\code{nhat}}{the number of tests carried out.}
 }
 }
 \description{
-Test for anomalies using either \code{bonferroni}, \code{FDR}, \code{EFDR} or \code{LOS} in the
-wavelet domain.
+Test for anomalies using either \code{bonferroni}, \code{FDR}, \code{EFDR} or \code{LOS} in the wavelet domain using the 2D wavelet transform.
 }
 \examples{
-Z <- test_image(h = 0.5, r = 14, n1 = 64)$z
-Z <- Z + rnorm(64^2)*0.2
-m1 <- test.bonferroni(Z, wf="la8",J=3, alpha = 0.05)
-m2 <- test.efdr(Z, wf="la8",J=3, alpha = 0.05,n.hyp=c(20,40,60,100,120,200,500,1000))
+## See vignettes by typing vignette("EFDR_vignettes")
 }
 \references{
-Shen, Xiaotong, Hsin-Cheng Huang, and Noel Cressie. "Nonparametric hypothesis testing for a spatial signal." Journal of the American Statistical Association 97.460 (2002): 1122-1140.
+Daubechies, I. (1992) Ten Lectures on Wavelets, CBMS-NSF Regional Conference Series in Applied Mathematics, SIAM: Philadelphia.
+
+Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 }
 

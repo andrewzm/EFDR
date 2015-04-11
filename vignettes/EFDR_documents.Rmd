@@ -1,0 +1,15 @@
+---
+output: html_vignette
+vignette: >
+  %\VignetteIndexEntry{Enhanced False Discovery Rate (EFDR) tutorials}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+---
+  
+Enhanced False Discovery Rate (EFDR) tutorials
+===================
+  **Andrew Zammit Mangion**
+  
+  **14-Jan-2015**
+  
+  Since the main function of this package `test.efdr` is computationally intensive, we do not distribute vignettes so as not to bog down CRAN servers during vignette building. Instead we provide two tutorials as documentation with the package. These can be accessed through the link *User guides, package vignettes and other documentation* in the HTML help page which can be loaded by typing `help(package="EFDR",help_type="html")` in the console. 
