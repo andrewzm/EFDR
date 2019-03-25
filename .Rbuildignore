@@ -1,0 +1,17 @@
+ipython
+src-i386
+src-x64
+\.\.Rcheck
+^\.\.pdf$
+\.git
+\.gitignore
+.o$
+.so$
+.dll$
+docs
+^cran-comments\.md$
+^README.md$
+inst/doc/EFDR_SST_cache
+inst/doc/EFDR_SST_files
+^NEWS.md$
+.tar.gz$
