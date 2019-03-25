@@ -9,8 +9,12 @@
 #' @import foreach
 #' @import gstat
 #' @import sp
+#' @import copula
 #' @import waveslim
 #' @importFrom tidyr spread
 #' @importFrom doParallel registerDoParallel
+#' @importFrom methods as
+#' @importFrom stats cor dist mad medpolish optimize pexp pgamma pnorm predict qexp rnorm var
+#' @importFrom utils combn relist
 #' @name EFDR
 NULL

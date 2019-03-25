@@ -30,16 +30,16 @@ library(RCurl)
 library(animation)
 ```
 
-Second, we will load the SST data available from the website of [Chris Wikle](http://www.stat.missouri.edu/~wikle/datasets.html) at University of Missouri. There are three data sets which we need, (i) the lon-lat coordinates, (ii) the SST data at these coordinates (at 399 time points, one for each month between January 1970 and March 2003) and (iii) the land mask. For this we use the `RCurl` package. The data is then piped into several pre-processing stages: (i) the data frame is set into `long` format using the `gather` command, (ii) the factor `date` is a given month in a given year and is converted to an integer which we denote `time` and (iii) we subset the data to only include the region of interest without land mass.
+Second, we will load the SST data available from the website of [Chris Wikle](http://faculty.missouri.edu/~wiklec/datasets.html) at University of Missouri. There are three data sets which we need, (i) the lon-lat coordinates, (ii) the SST data at these coordinates (at 399 time points, one for each month between January 1970 and March 2003) and (iii) the land mask. For this we use the `RCurl` package. The data is then piped into several pre-processing stages: (i) the data frame is set into `long` format using the `gather` command, (ii) the factor `date` is a given month in a given year and is converted to an integer which we denote `time` and (iii) we subset the data to only include the region of interest without land mass.
 
 ```{r,cache=FALSE}
-sst <- getURL("http://www.stat.missouri.edu/~wikle/SSTlonlat.dat") %>%
+sst <- getURL("http://faculty.missouri.edu/~wiklec/SSTlonlat.dat") %>%
   textConnection() %>%
   read.table(col.names = c("x","y")) %>%
-  cbind(getURL("http://www.stat.missouri.edu/~wikle/SST011970_032003.dat") %>%
+  cbind(getURL("http://faculty.missouri.edu/~wiklec/SST011970_032003.dat") %>%
           textConnection() %>%
           read.table()) %>%
-  mutate(land = (getURL("http://www.stat.missouri.edu/~wikle/SSTlandmask.dat") %>%
+  mutate(land = (getURL("http://faculty.missouri.edu/~wiklec/SSTlandmask.dat") %>%
            textConnection() %>%
            read.table())[,1]) %>% 
   gather(date,z,-x,-y,-land) %>%
