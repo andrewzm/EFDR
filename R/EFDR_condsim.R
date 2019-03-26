@@ -35,8 +35,9 @@
 #'
 #' @examples
 #' ## See vignettes by typing vignette("EFDR_vignettes")
-test.efdr.condsim <- function(Zvec, H, n1, n2, iter.cs = 100, wf = "la8", J = 2, alpha = 0.05, 
-                              n.hyp = 100, b = 11, iteration = 200, parallel = 1L) {
+test.efdr.condsim <- function(Zvec, H, n1, n2, rho_est_method = "CPL", iter.cs = 100,
+                              wf = "la8", J = 2, alpha = 0.05, n.hyp = 100, b = 11,
+                              iteration = 200, parallel = 1L) {
   
   if(is.matrix(Zvec))
     if(ncol(Zvec > 1)) stop("Zvec needs to be a vector")
@@ -86,7 +87,7 @@ test.efdr.condsim <- function(Zvec, H, n1, n2, iter.cs = 100, wf = "la8", J = 2,
   
   cat("Conditionally simulating and doing EFDR on each simulation ...\n")
   for(i in 1:iter.cs) {
-      cat(paste0("\n ----------------- Simulation ", i, " ----------------- \n"))
+    cat(paste0("\n ----------------- Simulation ", i, " ----------------- \n"))
     df$z <- mean12 + LL%*%rnorm(n1*n2)
     Z_mat <- df.to.mat(df)
     out <- test.efdr(Z_mat, wf=wf, J=J, n.hyp=n.hyp, parallel=parallel)
@@ -98,13 +99,14 @@ test.efdr.condsim <- function(Zvec, H, n1, n2, iter.cs = 100, wf = "la8", J = 2,
   ti <- -2*log(pvalue.all)
   
   cat("Estimating rho ...\n")
-  rhoMCL <- rho_est_MCL(ti)
-  ahat <- iter.cs/(1+(iter.cs-1)*rhoMCL)
-  bhat <- 1/(2*(1+(iter.cs-1)*rhoMCL))
+  if(rho_est_method=="CPL") rho.hat <- rho_est_MCL(ti)
+  if(rho_est_method=="MOM") rho.hat <- rho_est_MoM(ti)
+  ahat <- iter.cs/(1+(iter.cs-1)*rho.hat)
+  bhat <- 1/(2*(1+(iter.cs-1)*rho.hat))
   pvalue <- 1-pgamma(q=sum(ti), shape=ahat, rate=bhat)
   mu.hat <- apply(mu.hat.all,c(2,3),mean)
   list(pvalue = pvalue, mu.hat = mu.hat, phi.hat = phi.hat, 
-       sigmasq.hat = sigmasq.hat, rho.hat=rhoMCL)
+       sigmasq.hat = sigmasq.hat, rho.hat=rhoMCL, pvalue.ave = mean(pvalue.all))
 }
 
 negloglik_exp <- function(phi,x,dd,H) {
@@ -128,5 +130,14 @@ rho_est_MCL <- function(X) {
   Usim <- rCopula(10000, norm.cop)
   Xexp <- qexp(Usim, rate=0.5)
   rho <- mean(cor(Xexp)[lower.tri(cor(Xexp))])
+  rho
+}
+
+rho_est_MoM <- function(X) {
+  M <- length(X)
+  sqD <- outer(X, X, FUN='-')^2
+  sumsqD <- sum(sqD)/2
+  rho <- 1-(sumsqD/(M-1))/sum((X-2)^2)
+  rho <- max(rho, -(1/(M-1))+1e-8)
   rho
 }
