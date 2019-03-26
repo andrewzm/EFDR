@@ -108,7 +108,7 @@ test.efdr.condsim <- function(Zvec, H, n1, n2, rho_est_method = c("CPL", "MOM"),
   pvalue <- 1-pgamma(q=sum(ti), shape=ahat, rate=bhat)
   mu.hat <- apply(mu.hat.all,c(2,3),mean)
   list(pvalue = pvalue, mu.hat = mu.hat, phi.hat = phi.hat, 
-       sigmasq.hat = sigmasq.hat, rho.hat=rhoMCL, pvalue.ave = mean(pvalue.all))
+       sigmasq.hat = sigmasq.hat, rho.hat = rho.hat, pvalue.ave = mean(pvalue.all))
 }
 
 negloglik_exp <- function(phi,x,dd,H) {
