@@ -7,6 +7,7 @@
 #'          as many rows as \code{Ztilde} and \code{n1} x \code{n2} columns
 #' @param n1 number of rows in fine-resolution image
 #' @param n2 number of columns in fine-resolution image
+#' @param rho_est_method method with which to estimate the level of exchangeability rho; can be either "CPL" (copula model) or "MOM" (method of moments)
 #' @param iter.cs number of conditional simulations to carry out
 #' @param wf type of wavelet to employ. Defaults to `la8', the Daubechies orthonormal compactly supported wavelet of length \code{L = 8} (Daubechies, 1992), least asymmetric family. Other options include `haar' (Haar wavelet), `fk8' (Fejer-Korovkin wavelet with \code{L=8}) and `mb8' (minimum-bandwidth wavelet with \code{L=8}). Please type `\code{waveslim::wave.filter}' in the console for a full list of wavelet names
 #' @param J number of resolutions to employ in wavelet decomposition
@@ -35,7 +36,7 @@
 #'
 #' @examples
 #' ## See vignettes by typing vignette("EFDR_vignettes")
-test.efdr.condsim <- function(Zvec, H, n1, n2, rho_est_method = "CPL", iter.cs = 100,
+test.efdr.condsim <- function(Zvec, H, n1, n2, rho_est_method = c("CPL", "MOM"), iter.cs = 100,
                               wf = "la8", J = 2, alpha = 0.05, n.hyp = 100, b = 11,
                               iteration = 200, parallel = 1L) {
   
@@ -44,7 +45,8 @@ test.efdr.condsim <- function(Zvec, H, n1, n2, rho_est_method = "CPL", iter.cs =
   if(!length(Zvec) == nrow(H)) stop("H needs to have as many rows as there are elements in Zvec")
   if(!(n1*n2 == ncol(H))) stop("H needs to have n1 x n2 columns")
   if(!(n1 %in% 2^(1:10))) stop("n1 needs to be a dyadic power and less or equal to 1024")
-  if(!(n2 %in% 2^(1:10))) stop("n2 needs to be a dyadic power and less or equal to 1024")
+    if(!(n2 %in% 2^(1:10))) stop("n2 needs to be a dyadic power and less or equal to 1024")
+  rho_est_method <- match.arg(rho_est_method)
   
   theta_ML <- rep(NA,3*J+1)
   pvalue.all <- rep(NA,iter.cs)
