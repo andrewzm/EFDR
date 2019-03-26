@@ -54,7 +54,39 @@ Test for anomalies using \code{EFDR} and conditional simulation. The noisy image
 can be partially observed, or/and aggregated at different resolutions
 }
 \examples{
-## See vignettes by typing vignette("EFDR_vignettes")
+## Set up experiment
+n <- 32       # 32 x 32 images
+r <- 10       # signal of size 10 x 10
+h <- 5        # intensity of 5
+grid <- 8     # aggregated to 8 x 8 image
+parallel <- 4 # use 4 cores
+
+## Simulate the pixel-level data
+raw_grid <- expand.grid(x = seq(1, n), y = seq(1, n))
+df <- data.frame(raw_grid)                        # spatial grid
+dd <- as.matrix(dist(raw_grid, diag = TRUE))      # distance matrix
+Sigma <- exp(-dd/5)                               # cov. fn.
+diag(Sigma) <- 1                                  # fix diagonal
+L <- t(chol(Sigma))                               # lower Cholesky factor
+mu <- matrix(0, n, n)                             # zero mean
+mu[(n/2-r/2):(n/2+r/2), (n/2-r/2):(n/2+r/2)] <- h # add signal
+Z <- mu + matrix(L \%*\% rnorm(n^2), n, n)          # simulate data
+
+## Construct H (aggregation) matrix
+H <- matrix(0, grid^2, n^2)
+for(i in 1:grid^2) {
+  ind <- rep(rep(c(0L,1L,0L),
+             c((n/grid)*((i-1)\%\%grid),n/grid,(n-n/grid-n/grid*((i-1)\%\%grid)))),
+          n/grid)
+  H[i,which(c(rep(0L,(ceiling(i/grid)-1)*n^2/grid),ind) == TRUE)] <- 1/(n/grid)^2
+}
+
+## Aggregate the signal
+z_tilde <- c(H \%*\% c(Z))
+
+## Run EFDR using conditional simulation
+\dontrun{out2 <- test.efdr.condsim(Zvec = z_tilde, H = H, n1 = n, n2 = n, 
+                                   parallel = parallel)}
 }
 \references{
 Daubechies, I. (1992) Ten Lectures on Wavelets, CBMS-NSF Regional Conference Series in Applied Mathematics, SIAM: Philadelphia.
