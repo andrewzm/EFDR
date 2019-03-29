@@ -34,7 +34,7 @@
 #'
 #' @examples
 #' ## See vignettes by typing vignette("EFDR_vignettes")
-test.efdr <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,iteration = 200, parallel = 1L)
+test.efdr <- function(Z,wf = "la8",J=2, alpha=0.05,n.hyp=100,b=11,iteration = 200, parallel = 1L)
 {
   
   .check_args(Z = Z,wf = wf,J = J,alpha = alpha,n.hyp = n.hyp,b = b,iteration = iteration,parallel = parallel)
@@ -52,7 +52,7 @@ test.efdr <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,iteration = 20
   test.efdr.base(Z, wf=wf,J=J, alpha = alpha, n.hyp = nhat, b=b, nei=nei)
 }
   
-test.efdr.base <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,nei = NULL, parallel = 1L)
+test.efdr.base <- function(Z,wf = "la8",J=2, alpha=0.05,n.hyp=100,b=11,nei = NULL, parallel = 1L)
 {
   .check_args(Z = Z,wf = wf,J = J,alpha = alpha,n.hyp = n.hyp,b = b,nei = nei, parallel = parallel)
   
@@ -98,7 +98,7 @@ test.efdr.base <- function(Z,wf = "la8",J=3, alpha=0.05,n.hyp=100,b=11,nei = NUL
 
 #' @rdname wavelet-test
 #' @export
-test.fdr <- function(Z,wf = "la8",J=3,alpha=0.05)
+test.fdr <- function(Z,wf = "la8",J=2,alpha=0.05)
 {
   
   .check_args(Z = Z,wf = wf,J = J,alpha = alpha)
@@ -138,7 +138,7 @@ test.fdr <- function(Z,wf = "la8",J=3,alpha=0.05)
 
 #' @rdname wavelet-test
 #' @export
-test.bonferroni <- function(Z,wf="la8",J=3,alpha=0.05)
+test.bonferroni <- function(Z,wf="la8",J=2,alpha=0.05)
 {
   
   .check_args(Z = Z,wf = wf,J = J,alpha = alpha)
@@ -172,7 +172,7 @@ test.bonferroni <- function(Z,wf="la8",J=3,alpha=0.05)
 
 #' @rdname wavelet-test
 #' @export
-test.los <- function(Z,wf="la8",J=3,alpha=0.05)
+test.los <- function(Z,wf="la8",J=2,alpha=0.05)
 {
   .check_args(Z = Z,wf = wf,J = J,alpha = alpha)
   
@@ -260,7 +260,7 @@ test_image <- function(h=1,r=10,n1 = 64, n2=64)   {
 #' @examples
 #' Z <- test_image(h = 0.5, r = 14, n1 = 64)$z
 #' print(wav_th(Z,wf="la8",J=3,th=0.5))
-wav_th <- function(Z, wf = "la8", J = 3, th = 1) {
+wav_th <- function(Z, wf = "la8", J = 2, th = 1) {
   stopifnot(is.numeric(th))
   .check_args(Z = Z,wf = wf,J = J)
   
@@ -527,7 +527,7 @@ diagnostic.table <- function(reject.true,reject, n) {
 #' @examples
 #' image <- matrix(rnorm(64),8,8)
 #  nei <- nei.efdr(image,b=11)
-nei.efdr <- function(Z,wf="la8",J=3,b=11,parallel=1L) {
+nei.efdr <- function(Z,wf="la8",J=2,b=11,parallel=1L) {
   
   .check_args(Z=Z,wf=wf,J=J,b=b,parallel=parallel)
   
@@ -573,7 +573,7 @@ nei.efdr <- function(Z,wf="la8",J=3,b=11,parallel=1L) {
 }
 
 ### check input arguments
-.check_args <- function(Z,wf="la8",J=3,alpha = 0.05,n.hyp = 1L,b = 11L,nei = NULL,iteration = 1L,parallel=1L) {
+.check_args <- function(Z,wf="la8",J=2,alpha = 0.05,n.hyp = 1L,b = 11L,nei = NULL,iteration = 1L,parallel=1L) {
   if(!is.matrix(Z)) stop("Z needs to be a matrix")
   #if(!(ncol(Z) == nrow(Z))) stop("Z needs to be square")
   if(!(.IsPowerOfTwo(ncol(Z))) |  !(.IsPowerOfTwo(nrow(Z)))) stop("Z needs to have rows and columns a power of two")
@@ -598,7 +598,7 @@ nei.efdr <- function(Z,wf="la8",J=3,b=11,parallel=1L) {
 }
 
 ### function to find the L*
-.gdf <- function(Z, wf = "la8", J = 3, alpha = 0.05, n.hyp=c(100,150,200),iteration=200,b=11,nei=NULL,parallel=1L)
+.gdf <- function(Z, wf = "la8", J = 2, alpha = 0.05, n.hyp=c(100,150,200),iteration=200,b=11,nei=NULL,parallel=1L)
 {
   
   stopifnot(is.numeric(iteration))

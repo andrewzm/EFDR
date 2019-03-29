@@ -8,14 +8,14 @@
 \alias{test.los}
 \title{Test for anomalies in wavelet space}
 \usage{
-test.efdr(Z, wf = "la8", J = 3, alpha = 0.05, n.hyp = 100,
+test.efdr(Z, wf = "la8", J = 2, alpha = 0.05, n.hyp = 100,
   b = 11, iteration = 200, parallel = 1L)
 
-test.fdr(Z, wf = "la8", J = 3, alpha = 0.05)
+test.fdr(Z, wf = "la8", J = 2, alpha = 0.05)
 
-test.bonferroni(Z, wf = "la8", J = 3, alpha = 0.05)
+test.bonferroni(Z, wf = "la8", J = 2, alpha = 0.05)
 
-test.los(Z, wf = "la8", J = 3, alpha = 0.05)
+test.los(Z, wf = "la8", J = 2, alpha = 0.05)
 }
 \arguments{
 \item{Z}{image of size \code{n1} by \code{2n} where \code{n1,n2} have to be powers of two}

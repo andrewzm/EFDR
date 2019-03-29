@@ -50,7 +50,7 @@ fields::image.plot(Z_noisy,zlim=c(-0.5,1.5),asp=1)
 Next, the user needs to provide some essential parameters. These are
 - `alpha`:    significance level
 - `wf`:       wavelet name (typically "la8")
-- `J`:        number of multi-level resolutions (for a 64 x 64, 3 is sufficient)
+- `J`:        number of multi-level resolutions (for a 64 x 64, 3 is usually sufficient)
 - `b`:        number of neighbours to consider with EFDR
 - `n.hyp`:    numeric vector of test counts, from which the optimal number of tests, $L^*$, will be found. Setting this to a scalar fixes the number of tests a priori
 - `iteration`:  number of iterations in the Monte Carlo integration described earlier
@@ -177,7 +177,7 @@ First, load the dataset using RCurl:
 ```{r,message=FALSE,cache=FALSE}
 library(RCurl)
 airs.raw <- read.table(textConnection(getURL(
-                "http://hpc.niasra.uow.edu.au/ckan/dataset/6ddf61bb-2f9a-424a-8775-e23ebaa55afb/resource/e1206e1c-9dca-42b6-8455-3cdd98c6a943/download/airs2003may116.csv"
+                "https://hpc.niasra.uow.edu.au/ckan/dataset/6ddf61bb-2f9a-424a-8775-e23ebaa55afb/resource/e1206e1c-9dca-42b6-8455-3cdd98c6a943/download/airs2003may116.csv"
                 )),header=T,sep=",")
 ```
 

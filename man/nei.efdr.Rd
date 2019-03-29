@@ -4,7 +4,7 @@
 \alias{nei.efdr}
 \title{Find wavelet neighbourhood}
 \usage{
-nei.efdr(Z, wf = "la8", J = 3, b = 11, parallel = 1L)
+nei.efdr(Z, wf = "la8", J = 2, b = 11, parallel = 1L)
 }
 \arguments{
 \item{Z}{image of size \code{n1} by \code{n2} where both \code{n1,n2} have to be powers of two}
