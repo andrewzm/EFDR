@@ -1,8 +1,8 @@
 Package: EFDR
 Type: Package
-Title: Wavelet-Based Enhanced FDR for Signal Detection in Noisy Images
+Title: Wavelet-Based Enhanced FDR for Detecting Signals from Complete or Incomplete Spatially Aggregated Data 
 Version: 1.0
-Date: 2019-03-25
+Date: 2019-05-20
 Authors@R: c(person("Andrew", "Zammit-Mangion", role = c("aut", "cre"),
     email = "andrewzm@gmail.com"),
     person("Hsin-Cheng", "Huang", role = "aut"))
