@@ -12,7 +12,7 @@ Enhanced False Discovery Rate (EFDR): Detecting sea-surface temperature anomalie
 
 **13-Jan-2015**
 
-In this second tutorial we will examine the use of EFDR for anomaly detection of sea-surface temperatures (SST) in the tropical Pacific ocean. Every few or more years, the sea-surface temperature in this area rises dramatically in a phenomenon known as [El Niño](http://en.wikipedia.org/wiki/El_Ni%C3%B1o). The reverse effect, SST cooling in this area, is named [La Niña](http://en.wikipedia.org/wiki/La_Ni%C3%B1a).  Before going through this vignette, it is important you have covered the [first EFDR tutorial](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/docs/EFDR.html) which illustrates the basic concepts of EFDR and the `R` package we will be using here.
+In this second tutorial we will examine the use of EFDR for anomaly detection of sea-surface temperatures (SST) in the tropical Pacific ocean. Every few or more years, the sea-surface temperature in this area rises dramatically in a phenomenon known as El Niño. The reverse effect, SST cooling in this area, is named La Niña.  Before going through this vignette, it is important you have covered the [first EFDR tutorial](https://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/docs/EFDR.html) which illustrates the basic concepts of EFDR and the `R` package we will be using here.
 
 ## The Code
 
@@ -30,16 +30,16 @@ library(RCurl)
 library(animation)
 ```
 
-Second, we will load the SST data available from the website of [Chris Wikle](http://faculty.missouri.edu/~wiklec/datasets.html) at University of Missouri. There are three data sets which we need, (i) the lon-lat coordinates, (ii) the SST data at these coordinates (at 399 time points, one for each month between January 1970 and March 2003) and (iii) the land mask. For this we use the `RCurl` package. The data is then piped into several pre-processing stages: (i) the data frame is set into `long` format using the `gather` command, (ii) the factor `date` is a given month in a given year and is converted to an integer which we denote `time` and (iii) we subset the data to only include the region of interest without land mass.
+Second, we will load the SST data available from the website of [Chris Wikle](https://faculty.missouri.edu/~wiklec/datasets.html) at University of Missouri. There are three data sets which we need, (i) the lon-lat coordinates, (ii) the SST data at these coordinates (at 399 time points, one for each month between January 1970 and March 2003) and (iii) the land mask. For this we use the `RCurl` package. The data is then piped into several pre-processing stages: (i) the data frame is set into `long` format using the `gather` command, (ii) the factor `date` is a given month in a given year and is converted to an integer which we denote `time` and (iii) we subset the data to only include the region of interest without land mass.
 
 ```{r,cache=FALSE}
-sst <- getURL("http://faculty.missouri.edu/~wiklec/SSTlonlat.dat") %>%
+sst <- getURL("https://faculty.missouri.edu/~wiklec/SSTlonlat.dat") %>%
   textConnection() %>%
   read.table(col.names = c("x","y")) %>%
-  cbind(getURL("http://faculty.missouri.edu/~wiklec/SST011970_032003.dat") %>%
+  cbind(getURL("https://faculty.missouri.edu/~wiklec/SST011970_032003.dat") %>%
           textConnection() %>%
           read.table()) %>%
-  mutate(land = (getURL("http://faculty.missouri.edu/~wiklec/SSTlandmask.dat") %>%
+  mutate(land = (getURL("https://faculty.missouri.edu/~wiklec/SSTlandmask.dat") %>%
            textConnection() %>%
            read.table())[,1]) %>% 
   gather(date,z,-x,-y,-land) %>%
@@ -48,7 +48,7 @@ sst <- getURL("http://faculty.missouri.edu/~wiklec/SSTlonlat.dat") %>%
   subset(x > 155 & x < 280 & y <14&land==0)
 ```
 
-We are now ready to implement EFDR. First we declare the parameters (please refer to the [first EFDR tutorial](http://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/docs/EFDR.html) for a description of these):
+We are now ready to implement EFDR. First we declare the parameters (please refer to the [first EFDR tutorial](https://htmlpreview.github.io/?https://github.com/andrewzm/EFDR/blob/master/docs/EFDR.html) for a description of these):
 
 ```{r,cache=FALSE}
 ### Set parameters
@@ -139,7 +139,7 @@ saveHTML(FUN2(), autoplay = FALSE, loop = FALSE, verbose = FALSE, outdir = ".",
         single.opts = "'controls': ['first', 'previous', 'play', 'next', 'last', 'loop', 'speed'], 'delayMin': 0")
 ```
 
-Here, instead, we will simply plot some of the interesting time points. Occurrences of El Niño and La Niña, and the respective strength, are given in http://ggweather.com/enso/oni.htm. The video (not shown) gives a clear indication when these have occurred. The time points which stand-out correspond to those given in the cited website, although on one occasion (1999--2000) the EFDR-smoothed plot did not show the La Niña event in the original SST data. We plot some of the detected anomalies below:
+Here, instead, we will simply plot some of the interesting time points. Occurrences of El Niño and La Niña, and the respective strength, are given in https://ggweather.com/enso/oni.htm. The video (not shown) gives a clear indication when these have occurred. The time points which stand-out correspond to those given in the cited website, although on one occasion (1999--2000) the EFDR-smoothed plot did not show the La Niña event in the original SST data. We plot some of the detected anomalies below:
 
 ```{r,fig.height=6,fig.width=6,interval=1}
 #August 1972 strong El Niño event

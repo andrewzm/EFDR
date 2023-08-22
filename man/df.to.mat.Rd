@@ -27,5 +27,3 @@ names(df) <- c("x","y")
 df$z <- rnorm(nrow(df))
 Z <- df.to.mat(df)
 }
-\keyword{image}
-\keyword{reshape,}

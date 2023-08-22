@@ -1,8 +1,8 @@
 Package: EFDR
 Type: Package
 Title: Wavelet-Based Enhanced FDR for Detecting Signals from Complete or Incomplete Spatially Aggregated Data 
-Version: 1.1
-Date: 2021-04-17
+Version: 1.2
+Date: 2021-04-18
 Authors@R: c(person("Andrew", "Zammit-Mangion", role = c("aut", "cre"),
     email = "andrewzm@gmail.com"),
     person("Hsin-Cheng", "Huang", role = "aut"))
@@ -39,10 +39,11 @@ Imports:
     tidyr (>= 0.1.0.9000),
     dplyr (>= 0.3.0.2),
     sp (>= 1.0-15)
-URL: http://github.com/andrewzm/EFDR
+URL: https://github.com/andrewzm/EFDR/
 Depends:
-    R (>= 3.3)
+    R (>= 3.5.0)
 VignetteBuilder: knitr
 License: GPL (>= 2)
+Encoding: UTF-8
 NeedsCompilation: no
-RoxygenNote: 6.1.0
+RoxygenNote: 7.1.1

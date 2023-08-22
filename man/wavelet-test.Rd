@@ -8,8 +8,16 @@
 \alias{test.los}
 \title{Test for anomalies in wavelet space}
 \usage{
-test.efdr(Z, wf = "la8", J = 2, alpha = 0.05, n.hyp = 100,
-  b = 11, iteration = 200, parallel = 1L)
+test.efdr(
+  Z,
+  wf = "la8",
+  J = 2,
+  alpha = 0.05,
+  n.hyp = 100,
+  b = 11,
+  iteration = 200,
+  parallel = 1L
+)
 
 test.fdr(Z, wf = "la8", J = 2, alpha = 0.05)
 

@@ -214,7 +214,6 @@ test.los <- function(Z,wf="la8",J=2,alpha=0.05)
 #' \item{\code{z}}{the test image}
 #' \item{\code{signal.grid}}{the x-y grid in long table format} 
 #' }
-#' @keywords test image, EFDR
 #' @export
 #' @references Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 #' @examples
@@ -281,7 +280,6 @@ wav_th <- function(Z, wf = "la8", J = 2, th = 1) {
 #' @details This function requires that \emph{all} pixels in the image are defined, that is \code{df$x} and \code{df$y} must be the 
 #' column outputs of the function \code{expand.grid(x0,y0)} where \code{x0, y0} are axes values. Note that \code{x0} and 
 #' \code{y0} do not need to be regularly spaced.
-#' @keywords reshape, image
 #' @export
 #' @examples
 #' df <- data.frame(expand.grid(1:10,1:10))
@@ -350,7 +348,6 @@ df.to.mat <- function(df) {
 #' polish procedure to obtain an interpolant of the form \eqn{z(s) = \mu + a(s1) + b(s2)} where \eqn{s1} is the x-axis and
 #' \eqn{s2} is the y-axis. Missing points in the gridded image are then replaced with \eqn{z(s)} evaluated at these points. This method 
 #' cannot be used if all rows and columns do not contain at least one data point.
-#' @keywords regrid,interpolate, inverse distance weighting
 #' @export
 #' @examples
 #' df <- data.frame(x = runif(200),y = runif(200),z=rnorm(200))
@@ -522,7 +519,6 @@ diagnostic.table <- function(reject.true,reject, n) {
 #' @param b number of neighbours to consider in EFDR 
 #' @param parallel number of cores to use with parallel backend; needs to be an integer less than the number of available cores
 #' @return matrix of size \code{N} by \code{b}
-#' @keywords wavelets, neighbourhood
 #' @references Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 #' @examples
 #' image <- matrix(rnorm(64),8,8)

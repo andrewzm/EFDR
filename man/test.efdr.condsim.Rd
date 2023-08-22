@@ -4,9 +4,21 @@
 \alias{test.efdr.condsim}
 \title{Test for anomalies in wavelet space via conditional simulation}
 \usage{
-test.efdr.condsim(Zvec, H, n1, n2, rho_est_method = c("CPL", "MOM"),
-  iter.cs = 100, wf = "la8", J = 2, alpha = 0.05, n.hyp = 100,
-  b = 11, iteration = 200, parallel = 1L)
+test.efdr.condsim(
+  Zvec,
+  H,
+  n1,
+  n2,
+  rho_est_method = c("CPL", "MOM"),
+  iter.cs = 100,
+  wf = "la8",
+  J = 2,
+  alpha = 0.05,
+  n.hyp = 100,
+  b = 11,
+  iteration = 200,
+  parallel = 1L
+)
 }
 \arguments{
 \item{Zvec}{vector of observations such that \eqn{Ztilde = H.Z}}

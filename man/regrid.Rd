@@ -4,8 +4,15 @@
 \alias{regrid}
 \title{Regrid ir/regular data}
 \usage{
-regrid(df, n1 = 128, n2 = n1, method = "idw", idp = 0.5,
-  nmax = 7, model = "Exp")
+regrid(
+  df,
+  n1 = 128,
+  n2 = n1,
+  method = "idw",
+  idp = 0.5,
+  nmax = 7,
+  model = "Exp"
+)
 }
 \arguments{
 \item{df}{data frame with fields \code{x}, \code{y} and \code{z}}
@@ -58,7 +65,3 @@ cannot be used if all rows and columns do not contain at least one data point.
 df <- data.frame(x = runif(200),y = runif(200),z=rnorm(200))
 df.gridded <- regrid(df, n1=10)
 }
-\keyword{distance}
-\keyword{inverse}
-\keyword{regrid,interpolate,}
-\keyword{weighting}

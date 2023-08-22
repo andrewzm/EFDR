@@ -32,6 +32,3 @@ Z <- test_image()$z
 \references{
 Shen, X., Huang, H.-C., and Cressie, N. 'Nonparametric hypothesis testing for a spatial signal.' Journal of the American Statistical Association 97.460 (2002): 1122-1140.
 }
-\keyword{EFDR}
-\keyword{image,}
-\keyword{test}

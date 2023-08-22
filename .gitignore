@@ -26,3 +26,34 @@
 *.exe
 *.out
 *.app
+
+# R package specific
+.Rproj.user/
+.Rhistory
+.RData
+
+# Generated documentation and build artifacts
+/src/*.so
+/src/*.dll
+/src/*.o
+*.Rcheck/*
+
+# Temporary files
+*~
+*.swp
+*.bak
+
+# Environment files
+.Renviron
+.Rprofile
+
+# User-specific files
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# RStudio-specific
+.Rproj.user/
+
+# Builds
+*.tar.gz
