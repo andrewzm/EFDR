@@ -169,7 +169,7 @@ In fact, in this case no method detects an anomaly except for EFDR. Note that so
 
 ## A real example
 
-In this example we implement all the above tests on data from the Atmospheric Infrared Sounder (AIRS). Data are available from the [NIASRA data portal](http://hpc.niasra.uow.edu.au/ckan/dataset/airs-co2-data-may-2003).
+In this example we implement all the above tests on data from the Atmospheric Infrared Sounder (AIRS). Data are available from the [EFDR github page](https://raw.githubusercontent.com/andrewzm/EFDR/master/data_for_vignettes/AIRS_2003May1-16.csv).
 
 As a simple case study, we take CO2 data from the first three days in these data (01 - 03 May 2003) and compare these to data in the second three days (4 - 6 May 2003) in the conterminus United States and Canada. The change in CO2 in  these periods is an indication of regional fluxes and we are interested in where the flux is significantly different from zero. This satellite data is irregular in space; it therefore needs to be first regridded and interpolated onto an image of appropriate size.
 
@@ -177,7 +177,7 @@ First, load the dataset using RCurl:
 ```{r,message=FALSE,cache=FALSE}
 library(RCurl)
 airs.raw <- read.table(textConnection(getURL(
-                "https://hpc.niasra.uow.edu.au/ckan/dataset/6ddf61bb-2f9a-424a-8775-e23ebaa55afb/resource/e1206e1c-9dca-42b6-8455-3cdd98c6a943/download/airs2003may116.csv"
+                "https://raw.githubusercontent.com/andrewzm/EFDR/master/data_for_vignettes/AIRS_2003May1-16.csv"
                 )),header=T,sep=",")
 ```
 

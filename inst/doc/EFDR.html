@@ -206,12 +206,12 @@ fields<span class="op">::</span><span class="kw">image.plot</span>(m4<span class
 </div>
 <div id="a-real-example" class="section level2">
 <h2>A real example</h2>
-<p>In this example we implement all the above tests on data from the Atmospheric Infrared Sounder (AIRS). Data are available from the <a href="http://hpc.niasra.uow.edu.au/ckan/dataset/airs-co2-data-may-2003">NIASRA data portal</a>.</p>
+<p>In this example we implement all the above tests on data from the Atmospheric Infrared Sounder (AIRS). Data are available from the <a href="https://raw.githubusercontent.com/andrewzm/EFDR/master/data_for_vignettes/AIRS_2003May1-16.csv">EFDR github page</a>.</p>
 <p>As a simple case study, we take CO2 data from the first three days in these data (01 - 03 May 2003) and compare these to data in the second three days (4 - 6 May 2003) in the conterminus United States and Canada. The change in CO2 in these periods is an indication of regional fluxes and we are interested in where the flux is significantly different from zero. This satellite data is irregular in space; it therefore needs to be first regridded and interpolated onto an image of appropriate size.</p>
 <p>First, load the dataset using RCurl:</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(RCurl)
 airs.raw &lt;-<span class="st"> </span><span class="kw">read.table</span>(<span class="kw">textConnection</span>(<span class="kw">getURL</span>(
-                <span class="st">&quot;https://hpc.niasra.uow.edu.au/ckan/dataset/6ddf61bb-2f9a-424a-8775-e23ebaa55afb/resource/e1206e1c-9dca-42b6-8455-3cdd98c6a943/download/airs2003may116.csv&quot;</span>
+                <span class="st">&quot;https://raw.githubusercontent.com/andrewzm/EFDR/master/data_for_vignettes/AIRS_2003May1-16.csv&quot;</span>
                 )),<span class="dt">header=</span>T,<span class="dt">sep=</span><span class="st">&quot;,&quot;</span>)</code></pre></div>
 <p>Now we will concentrate on North America, and change the variable names into the appropriate x-y-z notation required to regrid the data. For this we use some handy functions from the <code>dplyr</code> package.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">library</span>(dplyr)

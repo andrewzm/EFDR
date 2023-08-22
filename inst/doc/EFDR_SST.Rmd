@@ -30,16 +30,16 @@ library(RCurl)
 library(animation)
 ```
 
-Second, we will load the SST data available from the website of [Chris Wikle](https://faculty.missouri.edu/~wiklec/datasets.html) at University of Missouri. There are three data sets which we need, (i) the lon-lat coordinates, (ii) the SST data at these coordinates (at 399 time points, one for each month between January 1970 and March 2003) and (iii) the land mask. For this we use the `RCurl` package. The data is then piped into several pre-processing stages: (i) the data frame is set into `long` format using the `gather` command, (ii) the factor `date` is a given month in a given year and is converted to an integer which we denote `time` and (iii) we subset the data to only include the region of interest without land mass.
+Second, we will load the SST data available from the EFDR github page. There are three data sets which we need, (i) the lon-lat coordinates, (ii) the SST data at these coordinates (at 399 time points, one for each month between January 1970 and March 2003) and (iii) the land mask. For this we use the `RCurl` package. The data is then piped into several pre-processing stages: (i) the data frame is set into `long` format using the `gather` command, (ii) the factor `date` is a given month in a given year and is converted to an integer which we denote `time` and (iii) we subset the data to only include the region of interest without land mass.
 
 ```{r,cache=FALSE}
-sst <- getURL("https://faculty.missouri.edu/~wiklec/SSTlonlat.dat") %>%
+sst <- getURL("https://raw.githubusercontent.com/andrewzm/EFDR/master/data_for_vignettes/SSTlonlat.dat") %>%
   textConnection() %>%
   read.table(col.names = c("x","y")) %>%
-  cbind(getURL("https://faculty.missouri.edu/~wiklec/SST011970_032003.dat") %>%
+  cbind(getURL("https://raw.githubusercontent.com/andrewzm/EFDR/master/data_for_vignettes/SST011970_032003.dat") %>%
           textConnection() %>%
           read.table()) %>%
-  mutate(land = (getURL("https://faculty.missouri.edu/~wiklec/SSTlandmask.dat") %>%
+  mutate(land = (getURL("https://raw.githubusercontent.com/andrewzm/EFDR/master/data_for_vignettes/SSTlandmask.dat") %>%
            textConnection() %>%
            read.table())[,1]) %>% 
   gather(date,z,-x,-y,-land) %>%
